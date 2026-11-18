@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+
+/* ألوان هوية بُنيان — تكتمل في المرحلة 1 */
+@theme {
+  --color-navy: #1e2a78;
+  --color-teal: #14b8a6;
+  --color-ink: #0f172a;
+}
