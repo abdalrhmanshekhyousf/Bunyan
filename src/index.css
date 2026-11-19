@@ -6,3 +6,19 @@
   --color-teal: #14b8a6;
   --color-ink: #0f172a;
 }
+
+/* كل سطر داخل المخطط يأخذ اتجاهه من أول حرف فيه (عربي RTL، إنجليزي LTR) */
+.mermaid-host :is(span, p, div, text, tspan) {
+  unicode-bidi: plaintext;
+}
+
+/* Mermaid يقيس النص العربي أضيق بـ 2–4px من عرضه الفعلي، فلا نقص الزيادة */
+.mermaid-host foreignObject {
+  overflow: visible;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

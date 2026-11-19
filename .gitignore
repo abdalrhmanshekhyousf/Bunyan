@@ -28,3 +28,5 @@ dist-ssr
 .env*.local
 .firebase/
 *-debug.log
+
+lab-out/
