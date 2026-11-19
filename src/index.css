@@ -5,6 +5,7 @@
   --color-navy: #1e2a78;
   --color-teal: #14b8a6;
   --color-ink: #0f172a;
+  --font-sans: 'Readex Pro', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* كل سطر داخل المخطط يأخذ اتجاهه من أول حرف فيه (عربي RTL، إنجليزي LTR) */

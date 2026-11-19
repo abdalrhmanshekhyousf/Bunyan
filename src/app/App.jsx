@@ -1,9 +1,15 @@
+import Logo, { AppIcon } from '@/components/ui/Logo.jsx'
+
 export default function App() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-slate-50 p-6 text-ink">
-      <h1 className="text-5xl font-bold text-navy">بُنيان</h1>
-      <p className="text-lg text-slate-600">من الوصف النصي إلى تحليل وتصميم كامل</p>
-      <span className="rounded-full bg-teal px-4 py-1 text-sm text-white">Tailwind يعمل ✓</span>
+    <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-slate-50 p-6 text-ink">
+      <Logo size="lg" />
+      <p className="text-lg text-slate-600">من الفكرة إلى نظام متكامل</p>
+      <div className="flex items-end gap-4">
+        <AppIcon className="size-24" />
+        <AppIcon className="size-14" />
+        <AppIcon className="size-9" />
+      </div>
     </main>
   )
 }
