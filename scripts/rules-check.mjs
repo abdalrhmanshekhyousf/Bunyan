@@ -94,13 +94,22 @@ try {
     'deny',
     call(A, 'PATCH', `/projects/${pid}?updateMask.fieldPaths=ownerId`, { ownerId: s(B.uid) }),
   )
+  const d = new Date()
+  const today = d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate()
+  const usage = (day, count) => ({ day: { integerValue: day }, count: { integerValue: count } })
+  await expect('أ يبدأ عدّاده من 5', 'deny', call(A, 'PATCH', `/usage/${A.uid}`, usage(today, 5)))
+  await expect('أ يبدأ عدّاده من 1', 'allow', call(A, 'PATCH', `/usage/${A.uid}`, usage(today, 1)))
+  await expect('أ يزيد عدّاده 1', 'allow', call(A, 'PATCH', `/usage/${A.uid}`, usage(today, 2)))
+  await expect('أ يُنقص عدّاده', 'deny', call(A, 'PATCH', `/usage/${A.uid}`, usage(today, 1)))
   await expect(
-    'أ يكتب عدّاد استخدامه بنفسه',
+    'أ يزوّر يوماً جديداً ليصفّر العدّاد',
     'deny',
-    call(A, 'PATCH', `/usage/${A.uid}`, { count: { integerValue: 0 } }),
+    call(A, 'PATCH', `/usage/${A.uid}`, usage(today + 1, 1)),
   )
+  await expect('ب يكتب عدّاد أ', 'deny', call(B, 'PATCH', `/usage/${A.uid}`, usage(today, 3)))
 } finally {
   await call(A, 'DELETE', `/projects/${pid}`)
+  // عدّاد الاستخدام لا يحذفه إلا المدير؛ يبقى مستند صغير يتيم لكل تشغيل
   for (const u of [A, B]) {
     await call(u, 'DELETE', `/users/${u.uid}`)
     await fetch(`${ID}:delete?key=${key}`, {

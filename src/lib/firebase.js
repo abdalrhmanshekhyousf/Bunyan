@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app'
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
 import { connectAuthEmulator, getAuth } from 'firebase/auth'
 import {
   connectFirestoreEmulator,
@@ -16,6 +17,15 @@ export const app = initializeApp({
   storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: env.VITE_FIREBASE_APP_ID,
+})
+
+// App Check (T4.2): إلزامي لـ AI Logic. في التطوير نستعمل رمز debug المسجّل في Console
+if (import.meta.env.DEV && env.VITE_APPCHECK_DEBUG_TOKEN) {
+  self.FIREBASE_APPCHECK_DEBUG_TOKEN = env.VITE_APPCHECK_DEBUG_TOKEN
+}
+export const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider(env.VITE_RECAPTCHA_SITE_KEY || 'missing-site-key'),
+  isTokenAutoRefreshEnabled: true,
 })
 
 export const auth = getAuth(app)

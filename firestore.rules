@@ -48,9 +48,24 @@ service cloud.firestore {
     }
 
     // عدّاد الاستخدام اليومي (T4.11 / T4.12)
+    // اليوم عدد صحيح بتوقيت UTC مثل 20261121، يُحسب من وقت الخادم فلا يمكن تزويره
+    function today() {
+      return request.time.year() * 10000 + request.time.month() * 100 + request.time.day();
+    }
+    function dailyLimit() {
+      let path = /databases/$(database)/documents/settings/limits;
+      return exists(path) ? get(path).data.get('dailyAnalyses', 10) : 10;
+    }
     match /usage/{uid} {
       allow read: if isSelf(uid) || isAdmin();
-      allow write: if false; // يُكمَل في المرحلة 4
+      // الزيادة بمقدار 1 فقط، أو البدء من 1 في يوم جديد، دون تجاوز الحدّ
+      allow create, update: if isSelf(uid)
+        && request.resource.data.keys().hasOnly(['day', 'count', 'updatedAt'])
+        && request.resource.data.day == today()
+        && request.resource.data.count == (
+             resource == null || resource.data.day != today() ? 1 : resource.data.count + 1)
+        && request.resource.data.count <= dailyLimit();
+      allow delete: if isAdmin();
     }
 
     // إعدادات عامة (حدّ الاستخدام): يقرؤها المسجّل ويكتبها المدير

@@ -16,6 +16,8 @@ import { Badge, Button, Card, Modal, Skeleton, Tabs } from '@/components/ui/inde
 import { useAuth } from '@/hooks/useAuth.js'
 import { useProject } from '@/hooks/useProjects.js'
 import DescriptionEditor from '@/features/projects/DescriptionEditor.jsx'
+import AnalysisPanel from '@/features/analysis/AnalysisPanel.jsx'
+import AnalyzeButton from '@/features/analysis/AnalyzeButton.jsx'
 import ShareModal from '@/features/projects/ShareModal.jsx'
 import { deleteProject } from '@/features/projects/projectsService.js'
 import { formatDate, statusOf } from '@/features/projects/status.js'
@@ -128,13 +130,15 @@ export default function ProjectWorkspace({ shared = false }) {
 
       <div className="mt-6" role="tabpanel">
         {tab === 'description' && (
-          <Card>
+          <Card className="flex flex-col gap-5">
             <DescriptionEditor key={project.id} project={project} readOnly={readOnly} />
+            {!readOnly && <AnalyzeButton project={project} onDone={() => setTab('analysis')} />}
           </Card>
         )}
-        {tab !== 'description' && (
+        {tab === 'analysis' && <AnalysisPanel project={project} readOnly={readOnly} />}
+        {!['description', 'analysis'].includes(tab) && (
           <Card className="py-12 text-center text-slate-500">
-            {project.status === 'analyzed'
+            {project.currentAnalysisId
               ? 'هذا القسم قيد البناء.'
               : 'حلّل الوصف أولاً لتظهر النتائج هنا.'}
           </Card>
