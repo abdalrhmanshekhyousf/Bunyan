@@ -21,6 +21,7 @@ import AnalysisPanel from '@/features/analysis/AnalysisPanel.jsx'
 import AnalyzeButton from '@/features/analysis/AnalyzeButton.jsx'
 import DiagramsPanel from '@/features/diagrams/DiagramsPanel.jsx'
 import DatabasePanel from '@/features/database/DatabasePanel.jsx'
+import ReportPanel from '@/features/report/ReportPanel.jsx'
 import ShareModal from '@/features/projects/ShareModal.jsx'
 import { deleteProject } from '@/features/projects/projectsService.js'
 import { formatDate, statusOf } from '@/features/projects/status.js'
@@ -85,7 +86,7 @@ export default function ProjectWorkspace({ shared = false }) {
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className={tab === 'report' ? 'mx-auto max-w-7xl' : 'mx-auto max-w-5xl'}>
       {!readOnly && (
         <Link
           to="/dashboard"
@@ -149,13 +150,7 @@ export default function ProjectWorkspace({ shared = false }) {
         {tab === 'analysis' && <AnalysisPanel project={project} readOnly={readOnly} />}
         {tab === 'diagrams' && <DiagramsPanel project={project} readOnly={readOnly} />}
         {tab === 'database' && <DatabasePanel project={project} readOnly={readOnly} />}
-        {tab === 'report' && (
-          <Card className="py-12 text-center text-slate-500">
-            {project.currentAnalysisId
-              ? t('workspace.underConstruction')
-              : t('workspace.analyzeFirst')}
-          </Card>
-        )}
+        {tab === 'report' && <ReportPanel project={project} readOnly={readOnly} />}
       </div>
 
       {!readOnly && (

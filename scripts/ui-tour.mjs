@@ -13,6 +13,7 @@ const password = 'Test12345!'
 const L = {
   en: {
     tabs: ['Analysis', 'Diagrams', 'Database'],
+    report: 'Report',
     name: 'Name',
     email: 'Email',
     pass: 'Password',
@@ -21,6 +22,7 @@ const L = {
   },
   ar: {
     tabs: ['التحليل', 'المخططات', 'قاعدة البيانات'],
+    report: 'التقرير',
     name: 'الاسم',
     email: 'البريد الإلكتروني',
     pass: 'كلمة المرور',
@@ -40,9 +42,9 @@ const shot = async (name) => {
   console.log('✓', name)
 }
 try {
-  await page.goto(B + '/')
+  await page.goto(B + '/', { waitUntil: 'domcontentloaded' })
   await shot('landing')
-  await page.goto(B + '/register')
+  await page.goto(B + '/register', { waitUntil: 'domcontentloaded' })
   await page.getByLabel(L.name).fill('Tour')
   await page.getByLabel(L.email).fill(email)
   await page.getByLabel(L.pass, { exact: true }).fill(password)
@@ -62,14 +64,27 @@ try {
     await saveEditedAnalysis({ id, currentVersion: 0 }, libraryAnalysis)
     return id
   }, lang)
-  await page.goto(B + '/dashboard')
+  await page.goto(B + '/dashboard', { waitUntil: 'domcontentloaded' })
   await shot('dashboard')
-  await page.goto(`${B}/projects/${projectId}`)
+  await page.goto(`${B}/projects/${projectId}`, { waitUntil: 'domcontentloaded' })
   for (const [i, tab] of L.tabs.entries()) {
     await page.getByRole('tab', { name: tab, exact: true }).click()
     if (i === 1) await page.locator('.mermaid-host svg').waitFor({ timeout: 20000 })
     await shot(['analysis', 'diagrams', 'database'][i])
   }
+  // التقرير: معاينة، ثم PDF عبر مسار الطباعة نفسه
+  await page.getByRole('tab', { name: L.report, exact: true }).click()
+  await page.locator('.report-doc figure svg').first().waitFor({ timeout: 60000 })
+  await shot('report')
+  await page.evaluate(() => document.body.classList.add('printing-report'))
+  await page.emulateMedia({ media: 'print' })
+  await page.pdf({
+    path: join(out, `${lang}-report.pdf`),
+    format: 'A4',
+    preferCSSPageSize: true,
+    printBackground: true,
+  })
+  console.log('✓ pdf')
 } catch (e) {
   console.log('✗', e.message.split('\n')[0])
   await page.screenshot({ path: join(out, `${lang}-fail.png`) })

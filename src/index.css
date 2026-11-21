@@ -34,8 +34,118 @@
   overflow: visible;
 }
 
+/* ── التقرير (T7.1) ─────────────────────────────────────────────── */
+.report-doc {
+  @apply bg-white text-ink;
+  font-size: 15px;
+  line-height: 1.8;
+}
+.report-cover {
+  @apply flex min-h-[26cm] flex-col items-center justify-center text-center;
+}
+.report-page,
+.report-flow {
+  @apply pt-8;
+}
+.report-h2 {
+  @apply mb-4 border-b-2 border-teal pb-2 text-2xl font-bold text-navy;
+}
+.report-h3 {
+  @apply mt-6 mb-2 text-lg font-bold text-ink;
+}
+.report-p {
+  @apply mb-3 text-justify;
+}
+.report-quote {
+  @apply rounded-lg border-s-4 border-slate-300 bg-slate-50 p-4 text-slate-700;
+}
+.report-list {
+  @apply flex list-disc flex-col gap-1.5 ps-6;
+}
+.report-table {
+  @apply my-3 w-full border-collapse text-sm;
+}
+.report-table :is(th, td) {
+  @apply border border-slate-300 px-2.5 py-1.5 text-start align-top;
+}
+.report-table th {
+  @apply bg-slate-100 font-semibold;
+}
+.report-table tr {
+  break-inside: avoid;
+}
+.report-figure {
+  @apply my-6 flex flex-col items-center gap-2 text-center;
+  break-inside: avoid;
+}
+.report-svg {
+  @apply flex w-full justify-center;
+}
+.report-svg svg {
+  max-width: 100% !important;
+  max-height: 20cm;
+  height: auto;
+}
+.report-code {
+  @apply rounded-lg border border-slate-300 bg-slate-50 p-3 text-start font-mono text-xs leading-relaxed whitespace-pre-wrap;
+}
+
+/* ── الطباعة PDF (T7.5): نطبع وثيقة التقرير وحدها ─────────────────── */
+.print-portal {
+  display: none;
+}
+
+@page {
+  size: A4;
+  margin: 18mm 16mm 20mm;
+  @bottom-center {
+    content: counter(page);
+    font-family: 'Readex Pro', sans-serif;
+    font-size: 10pt;
+    color: #64748b;
+  }
+}
+@page :first {
+  @bottom-center {
+    content: none;
+  }
+}
+
 @media print {
   .no-print {
     display: none !important;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  body.printing-report #root {
+    display: none !important;
+  }
+  body.printing-report .print-portal {
+    display: block;
+  }
+  .report-cover {
+    min-height: 24cm;
+    break-after: page;
+  }
+  .report-page {
+    break-after: page;
+    padding-top: 0;
+  }
+  .report-flow {
+    padding-top: 0.5cm;
+  }
+  .report-page-break {
+    break-before: page;
+  }
+  .report-h2,
+  .report-h3 {
+    break-after: avoid;
+  }
+  /* الألوان والخلفيات كما هي في PDF */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
