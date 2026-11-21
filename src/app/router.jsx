@@ -6,7 +6,8 @@ import Login from '@/pages/Login.jsx'
 import Register from '@/pages/Register.jsx'
 import ForgotPassword from '@/pages/ForgotPassword.jsx'
 import NotFound from '@/pages/NotFound.jsx'
-import Placeholder from '@/pages/Placeholder.jsx'
+import Dashboard from '@/pages/Dashboard.jsx'
+import ProjectWorkspace from '@/pages/ProjectWorkspace.jsx'
 
 export const router = createBrowserRouter([
   { path: '/', element: <Landing /> },
@@ -24,8 +25,9 @@ export const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
-          { path: '/dashboard', element: <Placeholder title="مشاريعي" /> },
-          { path: '/projects/:projectId', element: <Placeholder title="مساحة عمل المشروع" /> },
+          { path: '/dashboard', element: <Dashboard /> },
+          { path: '/projects/:projectId', element: <ProjectWorkspace /> },
+          { path: '/share/:projectId', element: <ProjectWorkspace shared /> },
         ],
       },
     ],

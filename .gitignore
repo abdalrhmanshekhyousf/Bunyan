@@ -30,3 +30,4 @@ dist-ssr
 *-debug.log
 
 lab-out/
+e2e-out
