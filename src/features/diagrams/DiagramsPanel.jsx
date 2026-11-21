@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Code2, Download, Info, Network, RotateCcw } from 'lucide-react'
+import { Code2, Download, Info, Loader2, Network, RotateCcw, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
-import { Badge, Button, Card, Modal, Skeleton, Tabs } from '@/components/ui/index.js'
+import { Badge, Button, Card, Modal, Skeleton } from '@/components/ui/index.js'
+import { useAuth } from '@/hooks/useAuth.js'
+import { cn } from '@/utils/cn.js'
 import { useDebounce } from '@/hooks/useDebounce.js'
 import { useIsDark } from '@/hooks/useIsDark.js'
-import { buildAll } from '@/utils/toMermaid.js'
+import { buildAll, needsDesign } from '@/utils/diagramRegistry.js'
+import { addDesignToAnalysis } from '@/features/analysis/analysisService.js'
 import { useAnalyses } from '@/features/analysis/useAnalysis.js'
 import MermaidView from './MermaidView.jsx'
 import { DIAGRAMS } from './diagramInfo.js'
@@ -19,6 +22,8 @@ export default function DiagramsPanel({ project, readOnly }) {
   const [draft, setDraft] = useState('')
   const [confirmReset, setConfirmReset] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
+  const [designBusy, setDesignBusy] = useState(false)
+  const { user } = useAuth()
   const svgRef = useRef(null)
   const dark = useIsDark()
 
@@ -65,6 +70,20 @@ export default function DiagramsPanel({ project, readOnly }) {
     toast.success('أُعيد توليد المخطط من التحليل.')
   }
 
+  const designPending = designBusy || isFreshPending(current)
+
+  async function onGenerateDesign() {
+    setDesignBusy(true)
+    try {
+      await addDesignToAnalysis({ project, uid: user.uid, analysis: current })
+      toast.success('صُمّمت المخططات الإضافية.')
+    } catch (e) {
+      toast.error(e.message)
+    } finally {
+      setDesignBusy(false)
+    }
+  }
+
   async function onDownload(kind) {
     if (!svgRef.current) return
     const bg = dark ? '#0f172a' : '#ffffff'
@@ -78,12 +97,7 @@ export default function DiagramsPanel({ project, readOnly }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <Tabs
-        items={DIAGRAMS.map(({ id, label, icon }) => ({ id, label, icon }))}
-        value={type}
-        onChange={switchType}
-        className="no-print"
-      />
+      <DiagramPicker value={type} onChange={switchType} available={generated} saved={saved} />
 
       <Card className="flex flex-col gap-4">
         <div className="no-print flex flex-wrap items-center justify-between gap-3">
@@ -151,7 +165,33 @@ export default function DiagramsPanel({ project, readOnly }) {
           </dl>
         )}
 
-        {!code ? (
+        {!code && needsDesign(type) && designPending ? (
+          <div
+            role="status"
+            className="flex flex-col items-center gap-3 py-14 text-center text-slate-500"
+          >
+            <Loader2 className="size-10 animate-spin text-teal" />
+            <p className="font-semibold">يصمّم بُنيان هذا المخطط الآن…</p>
+            <p className="text-sm">
+              يستغرق ذلك قرابة دقيقة، وسيظهر هنا تلقائياً. يمكنك تصفّح المخططات الأخرى.
+            </p>
+          </div>
+        ) : !code && needsDesign(type) ? (
+          <div className="flex flex-col items-center gap-3 py-12 text-center text-slate-500">
+            <Sparkles className="size-10 text-teal" />
+            <p className="max-w-md">
+              {current.designStatus === 'error' || current.designStatus === 'pending'
+                ? 'تعذّر تصميم المخططات الإضافية (الحالة، والكائنات، والحِزم، والمكوّنات، والنشر).'
+                : 'هذا التحليل أقدم من المخططات الإضافية (الحالة، والكائنات، والحِزم، والمكوّنات، والنشر).'}
+            </p>
+            {!readOnly && (
+              <Button onClick={onGenerateDesign} loading={designBusy}>
+                <Sparkles className="size-4" />
+                صمّم المخططات الإضافية
+              </Button>
+            )}
+          </div>
+        ) : !code ? (
           <div className="flex flex-col items-center gap-2 py-12 text-center text-slate-500">
             <Network className="size-10" />
             لا توجد في التحليل بيانات كافية لهذا المخطط. أضفها من تبويب «التحليل».
@@ -206,6 +246,56 @@ export default function DiagramsPanel({ project, readOnly }) {
           عدّلتَ هذا المخطط يدوياً. ستُحذف تعديلاتك ويُرسم من جديد من نتيجة التحليل الحالية.
         </p>
       </Modal>
+    </div>
+  )
+}
+
+// «pending» أقدم من 4 دقائق (أُغلق التبويب أثناء التوليد) تُعدّ فشلاً
+function isFreshPending(analysis) {
+  if (analysis.designStatus !== 'pending') return false
+  const created = analysis.createdAt?.toMillis?.() ?? Date.now()
+  return Date.now() - created < 4 * 60_000
+}
+
+const GROUPS = [
+  ['structure', 'المخططات البنيوية'],
+  ['behavior', 'المخططات السلوكية'],
+]
+
+// اختيار المخطط: شبكة تلتفّ على كل العروض فيظهر المخططات الأحد عشر كلها دون تمرير
+function DiagramPicker({ value, onChange, available, saved }) {
+  return (
+    <div className="no-print grid gap-3 md:grid-cols-2">
+      {GROUPS.map(([group, title]) => (
+        <Card key={group} className="flex flex-col gap-2 p-3">
+          <p className="px-1 text-xs font-semibold text-slate-500">{title}</p>
+          <div role="tablist" aria-label={title} className="flex flex-wrap gap-1.5">
+            {DIAGRAMS.filter((d) => d.group === group).map(({ id, label, icon: Icon }) => {
+              const active = id === value
+              const ready = !!(saved[id]?.code ?? available[id])
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => onChange(id)}
+                  className={cn(
+                    'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors',
+                    active
+                      ? 'bg-navy text-white dark:bg-teal dark:text-ink'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700',
+                    !ready && !active && 'opacity-60',
+                  )}
+                >
+                  <Icon className="size-4" />
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+        </Card>
+      ))}
     </div>
   )
 }

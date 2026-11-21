@@ -1,13 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import {
-  buildAll,
-  esc,
-  toActivity,
-  toClass,
-  toER,
-  toSequence,
-  toUseCase,
-} from '@/utils/toMermaid.js'
+import { esc, toActivity, toClass, toER, toSequence, toUseCase } from '@/utils/toMermaid.js'
+import { buildAll } from '@/utils/diagramRegistry.js'
 import { emptyAnalysis } from '@/features/analysis/schema.js'
 import { libraryAnalysis as a } from './fixtures/libraryAnalysis.js'
 
@@ -103,6 +96,7 @@ describe('toER', () => {
 
 describe('buildAll', () => {
   it('يعيد null للمخططات التي لا بيانات لها', () => {
-    expect(Object.values(buildAll(emptyAnalysis()))).toEqual([null, null, null, null, null])
+    expect(Object.values(buildAll(emptyAnalysis())).every((x) => x === null)).toBe(true)
+    expect(Object.keys(buildAll(emptyAnalysis()))).toHaveLength(11)
   })
 })

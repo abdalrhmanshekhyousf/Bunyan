@@ -182,14 +182,4 @@ export function toER(a) {
   )
 }
 
-export const DIAGRAM_TYPES = [
-  { id: 'useCase', build: toUseCase },
-  { id: 'class', build: toClass },
-  { id: 'sequence', build: toSequence },
-  { id: 'activity', build: toActivity },
-  { id: 'er', build: toER },
-]
-
-export function buildAll(a, opts) {
-  return Object.fromEntries(DIAGRAM_TYPES.map(({ id, build }) => [id, build(a, opts)]))
-}
+// سجل المخططات كلها في utils/diagramRegistry.js

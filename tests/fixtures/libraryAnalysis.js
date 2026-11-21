@@ -56,6 +56,73 @@ export const libraryAnalysis = analysisSchema.parse({
     { from: 'Book', to: 'Author', cardinality: 'M:N', label: 'كتبه' },
   ],
   rules: [{ id: 'BR1', text: '3 كتب كحدّ أقصى' }],
+  design: {
+    stateMachines: [
+      {
+        entity: 'Borrowing',
+        states: [
+          { id: 'Requested', label: 'مطلوبة' },
+          { id: 'Active', label: 'نشطة' },
+          { id: 'Overdue', label: 'متأخرة' },
+          { id: 'Returned', label: 'مُرجعة' },
+        ],
+        initial: 'Requested',
+        finals: ['Returned', 'Ghost'],
+        transitions: [
+          { from: 'Requested', to: 'Active', event: 'إقرار الإعارة' },
+          { from: 'Active', to: 'Overdue', event: 'تجاوز: تاريخ الاستحقاق' },
+          { from: 'Active', to: 'Returned', event: 'إرجاع الكتاب' },
+          { from: 'Overdue', to: 'Returned', event: 'سداد الغرامة (500)' },
+          { from: 'Active', to: 'Nowhere', event: 'x' },
+        ],
+      },
+      {
+        entity: 'Unknown',
+        states: [
+          { id: 'A', label: 'أ' },
+          { id: 'B', label: 'ب' },
+        ],
+        initial: 'A',
+        finals: [],
+        transitions: [],
+      },
+    ],
+    packages: [
+      { id: 'UserManagement', label: 'إدارة المستخدمين', entities: ['Student'] },
+      { id: 'Catalog', label: 'الفهرس', entities: ['Book', 'Author'] },
+      { id: 'Loans', label: 'الإعارة', entities: ['Borrowing', 'Missing'] },
+    ],
+    objects: [
+      { id: 'student1', entity: 'Student', values: [{ attribute: 'name', value: 'أحمد (طالب)' }] },
+      { id: 'book1', entity: 'Book', values: [{ attribute: 'title', value: 'خوارزميات' }] },
+      {
+        id: 'borrowing1',
+        entity: 'Borrowing',
+        values: [{ attribute: 'dueDate', value: '2026-12-01' }],
+      },
+    ],
+    objectLinks: [
+      { from: 'student1', to: 'borrowing1', label: 'يستعير' },
+      { from: 'borrowing1', to: 'book1', label: 'تتضمن' },
+      { from: 'book1', to: 'ghost1', label: 'x' },
+    ],
+    components: [
+      { id: 'WebApp', label: 'تطبيق الويب', kind: 'ui', dependsOn: ['LoanService', 'Nope'] },
+      { id: 'LoanService', label: 'خدمة الإعارة', kind: 'service', dependsOn: ['Database'] },
+      { id: 'Database', label: 'قاعدة البيانات', kind: 'database', dependsOn: [] },
+      { id: 'Mailer', label: 'خدمة البريد', kind: 'external', dependsOn: [] },
+    ],
+    deploymentNodes: [
+      { id: 'Browser', label: 'متصفح المستخدم', kind: 'device', components: ['WebApp'] },
+      { id: 'AppServer', label: 'خادم التطبيق', kind: 'server', components: ['LoanService'] },
+      { id: 'DbServer', label: 'خادم البيانات', kind: 'database', components: ['Database'] },
+      { id: 'Cloud', label: 'خدمات سحابية', kind: 'cloud', components: [] },
+    ],
+    deploymentLinks: [
+      { from: 'Browser', to: 'AppServer', protocol: 'HTTPS' },
+      { from: 'AppServer', to: 'DbServer', protocol: 'SQL/TCP' },
+    ],
+  },
   scenario: {
     label: 'استعارة كتاب',
     steps: [

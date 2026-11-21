@@ -14,7 +14,8 @@ import {
 import { db } from '@/lib/firebase.js'
 import { jsonModel, MODEL } from '@/lib/ai.js'
 import { analysisJsonSchema, analysisSchema } from './schema.js'
-import { systemInstruction, userPrompt } from './prompt.js'
+import { designInstruction, designPrompt, systemInstruction, userPrompt } from './prompt.js'
+import { designJsonSchema, parseDesign } from './designSchema.js'
 
 export const DEFAULT_DAILY_LIMIT = 10
 
@@ -117,6 +118,19 @@ export async function analyzeDescription(description, language = 'ar', onStage =
   throw toAnalysisError(lastError)
 }
 
+// الاستدعاء الثاني: بيانات المخططات الإضافية. فشله لا يُفشل التحليل
+export async function generateDesign(analysis, language = 'ar') {
+  const model = jsonModel({
+    systemInstruction: designInstruction(language),
+    schema: designJsonSchema,
+  })
+  const result = await model.generateContent(designPrompt(analysis))
+  return parseDesign(
+    JSON.parse(result.response.text()),
+    analysis.entities.map((e) => e.name),
+  )
+}
+
 // تحليل كامل: حجز من الحصة، ثم الاستدعاء، ثم الحفظ كإصدار جديد (T4.7)
 export async function runAnalysis({ project, uid, onStage }) {
   const dailyLimit = await getDailyLimit()
@@ -135,6 +149,7 @@ export async function runAnalysis({ project, uid, onStage }) {
       model: MODEL,
       source: 'ai',
       descriptionSnapshot: project.description,
+      designStatus: 'pending',
       createdAt: serverTimestamp(),
     })
     await updateDoc(projectRef, {
@@ -143,6 +158,8 @@ export async function runAnalysis({ project, uid, onStage }) {
       currentAnalysisId: ref.id,
       updatedAt: serverTimestamp(),
     })
+    // المخططات الإضافية تُولَّد في الخلفية (قرابة دقيقة) فلا ينتظرها المستخدم
+    fillDesign(ref, data, project.language)
     return ref.id
   } catch (e) {
     await updateDoc(projectRef, { status: project.currentAnalysisId ? 'analyzed' : 'error' }).catch(
@@ -171,6 +188,25 @@ export async function saveEditedAnalysis(project, data) {
     updatedAt: serverTimestamp(),
   })
   return ref.id
+}
+
+function fillDesign(ref, data, language) {
+  return generateDesign(data, language)
+    .then((design) => updateDoc(ref, { 'data.design': design, designStatus: 'done' }))
+    .catch((e) => {
+      console.warn('generateDesign:', e)
+      return updateDoc(ref, { designStatus: 'error' }).catch(() => {})
+    })
+}
+
+// توليد المخططات الإضافية لتحليل لا يحويها (قديم أو فشل توليدها). يُحتسب من الحصة
+export async function addDesignToAnalysis({ project, uid, analysis }) {
+  await consumeQuota(uid, await getDailyLimit()).catch((e) => {
+    throw e instanceof AnalysisError ? e : toAnalysisError(e)
+  })
+  const ref = doc(db, 'projects', project.id, 'analyses', analysis.id)
+  await updateDoc(ref, { designStatus: 'pending' })
+  await fillDesign(ref, analysis.data, project.language)
 }
 
 // الرجوع إلى إصدار سابق (T4.10)

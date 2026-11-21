@@ -23,26 +23,48 @@ try {
   await page.getByLabel('تأكيد كلمة المرور').fill(password)
   await page.getByRole('button', { name: 'إنشاء الحساب' }).click()
   await page.waitForURL('**/dashboard', { timeout: 20000 })
+  if (process.env.REAL) await page.goto(B + '/dashboard?real')
   projectId = await page.evaluate(async () => {
     const { auth } = await import('/src/lib/firebase.js')
     const { createProject } = await import('/src/features/projects/projectsService.js')
     const { saveEditedAnalysis } = await import('/src/features/analysis/analysisService.js')
     const { librarySample } = await import('/src/features/projects/sampleProject.js')
-    const { libraryAnalysis } = await import('/tests/fixtures/libraryAnalysis.js')
+    const real = location.search.includes('real')
+    const libraryAnalysis = real
+      ? await (
+          await import('/src/features/analysis/analysisService.js')
+        ).analyzeDescription(librarySample.description, 'ar')
+      : (await import('/tests/fixtures/libraryAnalysis.js')).libraryAnalysis
+    window.__analysis = libraryAnalysis
     const id = await createProject(auth.currentUser.uid, librarySample)
     await saveEditedAnalysis({ id, currentVersion: 0 }, libraryAnalysis)
     return id
   })
   await page.goto(`${B}/projects/${projectId}`)
   await page.getByRole('tab', { name: 'المخططات' }).click()
-  for (const name of ['حالات الاستخدام', 'الأصناف', 'التتابع', 'النشاط', 'الكيانات والعلاقات']) {
-    await page.getByRole('tab', { name }).click()
+  const NAMES = [
+    'حالات الاستخدام',
+    'الأصناف',
+    'الكائنات',
+    'التتابع',
+    'التعاون',
+    'النشاط',
+    'الحالة',
+    'الكيانات والعلاقات',
+    'الحِزم',
+    'المكوّنات',
+    'النشر',
+  ]
+  for (const name of NAMES) {
+    await page.getByRole('tab', { name, exact: true }).click()
     await page
       .locator('.mermaid-host svg')
       .waitFor({ timeout: 20000 })
       .catch(() => {})
     await page.waitForTimeout(600)
     const err = await page.getByRole('alert').allInnerTexts()
+    const empty = await page.getByText('لا توجد في التحليل بيانات كافية').count()
+    if (empty) err.push('فارغ: لا بيانات')
     const f = join(out, `diagram-${scheme}-${name}.png`)
     await page.locator('main').screenshot({ path: f })
     console.log(err.length ? `✗ ${name}: ${err.join(' ')}` : `✓ ${name}`)

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { parseDesign } from './designSchema.js'
 
 // بنية نتيجة التحليل (T4.4). المعرّفات إنجليزية دائماً (تصلح لـ Mermaid وSQL)،
 // والتسميات (label) بلغة المشروع. انظر docs/T0-arabic-experiments.md
@@ -206,6 +207,7 @@ export const analysisSchema = z
         ),
       })
       .catch({ label: '', steps: [] }),
+    design: z.unknown().optional(),
   })
   .transform(normalize)
 
@@ -234,8 +236,11 @@ function normalize(a) {
   const entityNames = new Set(entities.map((x) => x.name))
   const participants = new Set([...actorIds, ...entityNames, 'System'])
 
+  const { design, ...rest } = a
   return {
-    ...a,
+    ...rest,
+    // بيانات المخططات الإضافية إن وُجدت (لا نكتب undefined في Firestore)
+    ...(design ? { design: parseDesign(design, [...entityNames]) } : {}),
     actors,
     entities,
     functions: uniq(a.functions, (x) => x.id).map((f) => ({
