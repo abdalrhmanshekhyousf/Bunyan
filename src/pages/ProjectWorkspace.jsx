@@ -18,6 +18,7 @@ import { useProject } from '@/hooks/useProjects.js'
 import DescriptionEditor from '@/features/projects/DescriptionEditor.jsx'
 import AnalysisPanel from '@/features/analysis/AnalysisPanel.jsx'
 import AnalyzeButton from '@/features/analysis/AnalyzeButton.jsx'
+import DiagramsPanel from '@/features/diagrams/DiagramsPanel.jsx'
 import ShareModal from '@/features/projects/ShareModal.jsx'
 import { deleteProject } from '@/features/projects/projectsService.js'
 import { formatDate, statusOf } from '@/features/projects/status.js'
@@ -136,7 +137,8 @@ export default function ProjectWorkspace({ shared = false }) {
           </Card>
         )}
         {tab === 'analysis' && <AnalysisPanel project={project} readOnly={readOnly} />}
-        {!['description', 'analysis'].includes(tab) && (
+        {tab === 'diagrams' && <DiagramsPanel project={project} readOnly={readOnly} />}
+        {!['description', 'analysis', 'diagrams'].includes(tab) && (
           <Card className="py-12 text-center text-slate-500">
             {project.currentAnalysisId
               ? 'هذا القسم قيد البناء.'
