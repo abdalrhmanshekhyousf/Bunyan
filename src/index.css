@@ -1,11 +1,25 @@
 @import 'tailwindcss';
 
-/* ألوان هوية بُنيان — تكتمل في المرحلة 1 */
+/* الوضع الداكن يُفعَّل بصنف .dark على <html> (يُحفظ الاختيار في localStorage) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ألوان هوية بُنيان */
 @theme {
   --color-navy: #1e2a78;
+  --color-navy-600: #2a3896;
   --color-teal: #14b8a6;
+  --color-teal-600: #0d9488;
   --color-ink: #0f172a;
   --font-sans: 'Readex Pro', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-ink antialiased dark:bg-ink dark:text-slate-100;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-teal;
+  }
 }
 
 /* كل سطر داخل المخطط يأخذ اتجاهه من أول حرف فيه (عربي RTL، إنجليزي LTR) */
