@@ -1,0 +1,62 @@
+rules_version = '2';
+
+// قواعد أمان بُنيان (T2.10 + T3.11)
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
+    function isAdmin() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    function unchanged(field) {
+      return request.resource.data.get(field, null) == resource.data.get(field, null);
+    }
+
+    // المستخدمون: كلٌّ يقرأ مستنده، ولا يرقّي نفسه مديراً أبداً
+    match /users/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow create: if isSelf(uid) && request.resource.data.role == 'user';
+      allow update: if (isSelf(uid) && unchanged('role')) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // المشاريع: المالك يكتب، والمشترَك يقرؤه أي مستخدم مسجّل
+    match /projects/{projectId} {
+      function project() { return get(/databases/$(database)/documents/projects/$(projectId)).data; }
+      function canRead(data) {
+        return isSelf(data.ownerId) || (signedIn() && data.get('isShared', false) == true) || isAdmin();
+      }
+
+      allow read: if canRead(resource.data);
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 120
+        && request.resource.data.get('description', '').size() <= 5000;
+      allow update: if isSelf(resource.data.ownerId)
+        && unchanged('ownerId')
+        && request.resource.data.get('description', '').size() <= 5000;
+      allow delete: if isSelf(resource.data.ownerId);
+
+      // المجموعات الفرعية: analyses وdiagrams وdatabaseDesigns وreports
+      match /{sub}/{docId} {
+        allow read: if canRead(project());
+        allow write: if isSelf(project().ownerId);
+      }
+    }
+
+    // عدّاد الاستخدام اليومي (T4.11 / T4.12)
+    match /usage/{uid} {
+      allow read: if isSelf(uid) || isAdmin();
+      allow write: if false; // يُكمَل في المرحلة 4
+    }
+
+    // إعدادات عامة (حدّ الاستخدام): يقرؤها المسجّل ويكتبها المدير
+    match /settings/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

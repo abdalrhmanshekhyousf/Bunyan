@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth.js'
 import Navbar from '@/components/layout/Navbar.jsx'
 import { Badge, Button, Card } from '@/components/ui/index.js'
 import { LogoMark } from '@/components/ui/Logo.jsx'
@@ -79,17 +80,27 @@ const fadeUp = {
 }
 
 export default function Landing() {
+  const { user } = useAuth()
+  const start = user ? '/dashboard' : '/register'
   return (
     <div className="min-h-screen">
       <Navbar>
-        <Button as={Link} to="/login" variant="ghost" size="sm">
-          تسجيل الدخول
-        </Button>
-        <span className="hidden sm:contents">
-          <Button as={Link} to="/register" size="sm">
-            ابدأ مجاناً
+        {user ? (
+          <Button as={Link} to="/dashboard" size="sm">
+            مشاريعي
           </Button>
-        </span>
+        ) : (
+          <>
+            <Button as={Link} to="/login" variant="ghost" size="sm">
+              تسجيل الدخول
+            </Button>
+            <span className="hidden sm:contents">
+              <Button as={Link} to="/register" size="sm">
+                ابدأ مجاناً
+              </Button>
+            </span>
+          </>
+        )}
       </Navbar>
 
       {/* العنوان */}
@@ -126,7 +137,7 @@ export default function Landing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >
-            <Button as={Link} to="/register" size="lg">
+            <Button as={Link} to={start} size="lg">
               ابدأ مشروعك الأول
               <ArrowLeft className="size-5" />
             </Button>
@@ -230,7 +241,7 @@ export default function Landing() {
         >
           <h2 className="text-3xl font-bold">هل أنت مستعد لبناء مشروعك؟</h2>
           <p className="text-indigo-100">أنشئ حساباً مجانياً وابدأ أول تحليل الآن.</p>
-          <Button as={Link} to="/register" variant="accent" size="lg">
+          <Button as={Link} to={start} variant="accent" size="lg">
             ابدأ مجاناً
             <ArrowLeft className="size-5" />
           </Button>

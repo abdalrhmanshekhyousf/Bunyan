@@ -1,12 +1,14 @@
 import { MotionConfig } from 'motion/react'
 import { Toaster } from 'sonner'
+import AuthProvider from '@/features/auth/AuthProvider.jsx'
 
-// المزوّدات العامة. AuthProvider يُضاف في المرحلة 2
 export default function Providers({ children }) {
   return (
     <MotionConfig reducedMotion="user">
-      {children}
-      <Toaster position="top-center" dir="rtl" richColors closeButton />
+      <AuthProvider>
+        {children}
+        <Toaster position="top-center" dir="rtl" richColors closeButton />
+      </AuthProvider>
     </MotionConfig>
   )
 }
