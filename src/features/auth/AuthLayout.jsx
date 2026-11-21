@@ -3,11 +3,13 @@ import { motion } from 'motion/react'
 import Logo from '@/components/ui/Logo.jsx'
 import Card from '@/components/ui/Card.jsx'
 import ThemeToggle from '@/components/layout/ThemeToggle.jsx'
+import LanguageToggle from '@/components/layout/LanguageToggle.jsx'
 
 export default function AuthLayout({ title, subtitle, children, footer }) {
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center px-4 py-10">
-      <div className="absolute end-3 top-3">
+      <div className="absolute end-3 top-3 flex items-center gap-1">
+        <LanguageToggle />
         <ThemeToggle />
       </div>
       <div className="pointer-events-none absolute inset-x-0 top-0 mx-auto h-72 max-w-xl rounded-full bg-teal/15 blur-3xl" />

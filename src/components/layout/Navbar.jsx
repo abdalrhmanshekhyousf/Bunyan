@@ -3,6 +3,7 @@ import { Menu } from 'lucide-react'
 import Logo from '@/components/ui/Logo.jsx'
 import Button from '@/components/ui/Button.jsx'
 import ThemeToggle from './ThemeToggle.jsx'
+import LanguageToggle from './LanguageToggle.jsx'
 
 // الشريط العلوي. onMenu: يفتح القائمة الجانبية على الجوال (داخل AppLayout فقط)
 export default function Navbar({ onMenu, children }) {
@@ -25,6 +26,7 @@ export default function Navbar({ onMenu, children }) {
         </Link>
         <div className="ms-auto flex items-center gap-2">
           {children}
+          <LanguageToggle />
           <ThemeToggle />
         </div>
       </div>
