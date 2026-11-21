@@ -19,6 +19,7 @@ ANALYSIS RULES:
 - requirements: functional (FR1…) for every capability mentioned; add a few sensible non-functional ones (NFR1…) such as security, performance, usability.
 - actors: only human roles or external systems that interact with the system. Do not invent roles that the description does not imply.
 - entities: the persistent data. Singular names. Each entity has a primary key attribute (usually "id", type int, isPrimaryKey true).
+  An entity may have the same name as an actor (e.g. actor Student and entity Student); never add suffixes like "Entity".
   Do NOT add foreign-key attributes; relationships express them. Choose realistic types (date for dates, decimal for money).
   Give each entity 1–4 meaningful methods for the class diagram.
 - relationships: between entity names only. cardinality is from→to: "1:N" means one "from" has many "to". Use "M:N" for many-to-many.

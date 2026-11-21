@@ -21,13 +21,13 @@ export const LIMITS = {
 }
 
 // مخطط JSON يُمرَّر إلى Gemini كـ responseJsonSchema
-const str = (description, maxLength = LIMITS.label) => ({ type: 'string', description, maxLength })
-const ident = (description) => ({
-  type: 'string',
-  description,
-  pattern: '^[A-Za-z_][A-Za-z0-9_]*$',
-})
-const arr = (items, maxItems) => ({ type: 'array', items, maxItems })
+// ملاحظة: لا maxLength ولا maxItems ولا pattern هنا؛ Gemini يرفض المخطط المعقّد
+// ("too many states")، والحدود يفرضها Zod بعد الاستجابة
+// eslint-disable-next-line no-unused-vars
+const str = (description, _max) => ({ type: 'string', description })
+const ident = (description) => ({ type: 'string', description })
+// eslint-disable-next-line no-unused-vars
+const arr = (items, _max) => ({ type: 'array', items })
 const obj = (properties, required = Object.keys(properties)) => ({
   type: 'object',
   properties,
