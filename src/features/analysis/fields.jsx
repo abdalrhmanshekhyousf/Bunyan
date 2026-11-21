@@ -1,5 +1,6 @@
 import { Plus, Trash2 } from 'lucide-react'
 import { cn } from '@/utils/cn.js'
+import i18n from '@/lib/i18n.js'
 
 // حقول تحرير صغيرة مشتركة بين أقسام التحليل
 const base =
@@ -34,7 +35,7 @@ export function SelectField({ value, onChange, label, options, className }) {
   )
 }
 
-export function RemoveButton({ onClick, label = 'حذف' }) {
+export function RemoveButton({ onClick, label = i18n.t('analysis:edit.remove') }) {
   return (
     <button
       type="button"

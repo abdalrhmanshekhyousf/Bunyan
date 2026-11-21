@@ -1,6 +1,10 @@
 import { ArrowLeftRight, Key } from 'lucide-react'
 import { Badge, Card } from '@/components/ui/index.js'
 import { cn } from '@/utils/cn.js'
+import i18n from '@/lib/i18n.js'
+
+// الأقسام تُعاد رسمها مع AnalysisPanel عند تغيير اللغة
+const T = (key, opts) => i18n.t(`analysis:${key}`, opts)
 import { ATTRIBUTE_TYPES, CARDINALITIES } from './schema.js'
 import { AddButton, Mono, RemoveButton, SelectField, TextField } from './fields.jsx'
 
@@ -26,13 +30,13 @@ const nextId = (items, prefix) => {
   const n = Math.max(0, ...items.map((x) => parseInt(String(x.id).replace(/\D/g, '')) || 0))
   return `${prefix}${n + 1}`
 }
-const Empty = () => <p className="text-sm text-slate-500">لا توجد عناصر.</p>
+const Empty = () => <p className="text-sm text-slate-500">{T('noItems')}</p>
 
 export function Requirements({ items, edit, onChange }) {
   if (!edit) {
     const groups = [
-      ['functional', 'وظيفية'],
-      ['nonFunctional', 'غير وظيفية'],
+      ['functional', T('reqGroups.functional')],
+      ['nonFunctional', T('reqGroups.nonFunctional')],
     ]
     return groups.map(([type, title]) => {
       const list = items.filter((r) => r.type === type)
@@ -57,23 +61,23 @@ export function Requirements({ items, edit, onChange }) {
       {items.map((r, i) => (
         <div key={i} className="flex flex-wrap items-start gap-2 sm:flex-nowrap">
           <TextField
-            label="الرمز"
+            label={T('fields.code')}
             ltr
             value={r.id}
             onChange={(id) => onChange(update(items, i, { id }))}
             className="w-20"
           />
           <SelectField
-            label="النوع"
+            label={T('fields.type')}
             value={r.type}
             onChange={(type) => onChange(update(items, i, { type }))}
             options={[
-              { value: 'functional', label: 'وظيفي' },
-              { value: 'nonFunctional', label: 'غير وظيفي' },
+              { value: 'functional', label: T('reqTypes.functional') },
+              { value: 'nonFunctional', label: T('reqTypes.nonFunctional') },
             ]}
           />
           <TextField
-            label="نص المتطلب"
+            label={T('fields.requirementText')}
             multiline
             value={r.text}
             onChange={(text) => onChange(update(items, i, { text }))}
@@ -86,7 +90,7 @@ export function Requirements({ items, edit, onChange }) {
           onChange([...items, { id: nextId(items, 'FR'), type: 'functional', text: '' }])
         }
       >
-        إضافة متطلب
+        {T('add.requirement')}
       </AddButton>
     </div>
   )
@@ -116,20 +120,20 @@ export function Actors({ items, edit, onChange }) {
       {items.map((x, i) => (
         <div key={i} className="flex flex-wrap items-start gap-2 sm:flex-nowrap">
           <TextField
-            label="الاسم"
+            label={T('fields.name')}
             value={x.label}
             onChange={(label) => onChange(update(items, i, { label }))}
             className="sm:w-40"
           />
           <TextField
-            label="المعرّف"
+            label={T('fields.id')}
             ltr
             value={x.id}
             onChange={(id) => onChange(update(items, i, { id }))}
             className="sm:w-32"
           />
           <TextField
-            label="الدور"
+            label={T('fields.role')}
             value={x.description}
             onChange={(description) => onChange(update(items, i, { description }))}
           />
@@ -141,7 +145,7 @@ export function Actors({ items, edit, onChange }) {
           onChange([...items, { id: `Actor${items.length + 1}`, label: '', description: '' }])
         }
       >
-        إضافة فاعل
+        {T('add.actor')}
       </AddButton>
     </div>
   )
@@ -183,12 +187,12 @@ export function Functions({ items, edit, onChange, a }) {
         >
           <div className="flex gap-2">
             <TextField
-              label="اسم حالة الاستخدام"
+              label={T('fields.useCaseName')}
               value={f.label}
               onChange={(label) => onChange(update(items, i, { label }))}
             />
             <TextField
-              label="المعرّف"
+              label={T('fields.id')}
               ltr
               value={f.id}
               onChange={(id) => onChange(update(items, i, { id }))}
@@ -197,7 +201,7 @@ export function Functions({ items, edit, onChange, a }) {
             <RemoveButton onClick={() => onChange(remove(items, i))} />
           </div>
           <TextField
-            label="الوصف"
+            label={T('fields.description')}
             value={f.description}
             onChange={(description) => onChange(update(items, i, { description }))}
           />
@@ -238,21 +242,13 @@ export function Functions({ items, edit, onChange, a }) {
           ])
         }
       >
-        إضافة حالة استخدام
+        {T('add.useCase')}
       </AddButton>
     </div>
   )
 }
 
-const TYPE_LABELS = {
-  string: 'نص قصير',
-  text: 'نص طويل',
-  int: 'عدد صحيح',
-  decimal: 'عدد عشري',
-  boolean: 'نعم/لا',
-  date: 'تاريخ',
-  datetime: 'تاريخ ووقت',
-}
+const typeLabel = (type) => T(`types.${type}`)
 
 export function Entities({ items, edit, onChange }) {
   if (!edit)
@@ -279,7 +275,10 @@ export function Entities({ items, edit, onChange }) {
                     <td className="px-3 py-1.5">
                       <span className="flex items-center gap-1.5">
                         {x.isPrimaryKey && (
-                          <Key className="size-3.5 text-amber-500" aria-label="مفتاح أساسي" />
+                          <Key
+                            className="size-3.5 text-amber-500"
+                            aria-label={T('fields.primaryKey')}
+                          />
                         )}
                         {x.label}
                       </span>
@@ -293,7 +292,9 @@ export function Entities({ items, edit, onChange }) {
             </table>
             {e.methods.length > 0 && (
               <p className="border-t border-slate-100 px-3 py-2 text-xs text-slate-500 dark:border-slate-800">
-                العمليات: {e.methods.map((m) => m.label).join('، ')}
+                {T('methods', {
+                  list: e.methods.map((m) => m.label).join(i18n.language === 'ar' ? '، ' : ', '),
+                })}
               </p>
             )}
           </div>
@@ -314,38 +315,38 @@ export function Entities({ items, edit, onChange }) {
           >
             <div className="flex gap-2">
               <TextField
-                label="اسم الكيان"
+                label={T('fields.entityName')}
                 value={e.label}
                 onChange={(label) => onChange(update(items, i, { label }))}
               />
               <TextField
-                label="المعرّف"
+                label={T('fields.id')}
                 ltr
                 value={e.name}
                 onChange={(name) => onChange(update(items, i, { name }))}
                 className="w-36"
               />
-              <RemoveButton label="حذف الكيان" onClick={() => onChange(remove(items, i))} />
+              <RemoveButton label={T('remove.entity')} onClick={() => onChange(remove(items, i))} />
             </div>
             {e.attributes.map((x, k) => (
               <div key={k} className="flex flex-wrap items-center gap-2 ps-3 sm:flex-nowrap">
                 <TextField
-                  label="الخاصية"
+                  label={T('fields.attribute')}
                   value={x.label}
                   onChange={(label) => setAttrs(update(e.attributes, k, { label }))}
                 />
                 <TextField
-                  label="المعرّف"
+                  label={T('fields.id')}
                   ltr
                   value={x.name}
                   onChange={(name) => setAttrs(update(e.attributes, k, { name }))}
                   className="sm:w-32"
                 />
                 <SelectField
-                  label="النوع"
+                  label={T('fields.type')}
                   value={x.type}
                   onChange={(type) => setAttrs(update(e.attributes, k, { type }))}
-                  options={ATTRIBUTE_TYPES.map((t) => ({ value: t, label: TYPE_LABELS[t] }))}
+                  options={ATTRIBUTE_TYPES.map((t) => ({ value: t, label: typeLabel(t) }))}
                 />
                 <label className="flex shrink-0 items-center gap-1 text-xs">
                   <input
@@ -355,10 +356,10 @@ export function Entities({ items, edit, onChange }) {
                       setAttrs(update(e.attributes, k, { isPrimaryKey: ev.target.checked }))
                     }
                   />
-                  مفتاح
+                  {T('fields.key')}
                 </label>
                 <RemoveButton
-                  label="حذف الخاصية"
+                  label={T('remove.attribute')}
                   onClick={() => setAttrs(remove(e.attributes, k))}
                 />
               </div>
@@ -378,7 +379,7 @@ export function Entities({ items, edit, onChange }) {
                 ])
               }
             >
-              إضافة خاصية
+              {T('add.attribute')}
             </AddButton>
           </div>
         )
@@ -394,7 +395,7 @@ export function Entities({ items, edit, onChange }) {
               attributes: [
                 {
                   name: 'id',
-                  label: 'المعرّف',
+                  label: T('fields.id'),
                   type: 'int',
                   isPrimaryKey: true,
                   isRequired: true,
@@ -405,18 +406,13 @@ export function Entities({ items, edit, onChange }) {
           ])
         }
       >
-        إضافة كيان
+        {T('add.entity')}
       </AddButton>
     </div>
   )
 }
 
-const CARD_LABELS = {
-  '1:1': 'واحد لواحد',
-  '1:N': 'واحد لمتعدد',
-  'N:1': 'متعدد لواحد',
-  'M:N': 'متعدد لمتعدد',
-}
+const cardLabel = (c) => T(`cardinality.${c.replace(':', '_')}`)
 
 export function Relationships({ items, edit, onChange, a }) {
   const label = Object.fromEntries(a.entities.map((e) => [e.name, e.label]))
@@ -430,7 +426,7 @@ export function Relationships({ items, edit, onChange, a }) {
             <span className="font-semibold">{label[r.to] ?? r.to}</span>
             <Badge tone="teal">
               <ArrowLeftRight className="size-3" />
-              {CARD_LABELS[r.cardinality]} <bdi dir="ltr">({r.cardinality})</bdi>
+              {cardLabel(r.cardinality)} <bdi dir="ltr">({r.cardinality})</bdi>
             </Badge>
           </li>
         ))}
@@ -444,27 +440,27 @@ export function Relationships({ items, edit, onChange, a }) {
       {items.map((r, i) => (
         <div key={i} className="flex flex-wrap items-center gap-2">
           <SelectField
-            label="من"
+            label={T('fields.from')}
             value={r.from}
             options={opts}
             onChange={(from) => onChange(update(items, i, { from }))}
           />
           <TextField
-            label="العلاقة"
+            label={T('fields.relationship')}
             value={r.label}
             onChange={(l) => onChange(update(items, i, { label: l }))}
             className="w-32"
           />
           <SelectField
-            label="إلى"
+            label={T('fields.to')}
             value={r.to}
             options={opts}
             onChange={(to) => onChange(update(items, i, { to }))}
           />
           <SelectField
-            label="التعدد"
+            label={T('fields.cardinality')}
             value={r.cardinality}
-            options={CARDINALITIES.map((c) => ({ value: c, label: `${CARD_LABELS[c]} (⁦${c}⁩)` }))}
+            options={CARDINALITIES.map((c) => ({ value: c, label: `${cardLabel(c)} (⁦${c}⁩)` }))}
             onChange={(cardinality) => onChange(update(items, i, { cardinality }))}
           />
           <RemoveButton onClick={() => onChange(remove(items, i))} />
@@ -479,7 +475,7 @@ export function Relationships({ items, edit, onChange, a }) {
             ])
           }
         >
-          إضافة علاقة
+          {T('add.relationship')}
         </AddButton>
       )}
     </div>
@@ -505,14 +501,14 @@ export function Rules({ items, edit, onChange }) {
       {items.map((r, i) => (
         <div key={i} className="flex items-start gap-2">
           <TextField
-            label="الرمز"
+            label={T('fields.code')}
             ltr
             value={r.id}
             onChange={(id) => onChange(update(items, i, { id }))}
             className="w-20"
           />
           <TextField
-            label="القاعدة"
+            label={T('fields.rule')}
             multiline
             value={r.text}
             onChange={(text) => onChange(update(items, i, { text }))}
@@ -521,7 +517,7 @@ export function Rules({ items, edit, onChange }) {
         </div>
       ))}
       <AddButton onClick={() => onChange([...items, { id: nextId(items, 'BR'), text: '' }])}>
-        إضافة قاعدة
+        {T('add.rule')}
       </AddButton>
     </div>
   )

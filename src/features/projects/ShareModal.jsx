@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { Copy, Link2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import { Button, Modal } from '@/components/ui/index.js'
 import { fieldClass } from '@/components/ui/Input.jsx'
 import { setShared } from './projectsService.js'
 
 // مشاركة المشروع برابط للقراءة فقط (T3.10 + T3.12)
 export default function ShareModal({ project, open, onClose }) {
+  const { t } = useTranslation('projects')
   const [busy, setBusy] = useState(false)
   const url = `${location.origin}/share/${project.id}`
 
@@ -14,9 +16,9 @@ export default function ShareModal({ project, open, onClose }) {
     setBusy(true)
     try {
       await setShared(project.id, !project.isShared)
-      toast.success(project.isShared ? 'أُوقفت المشاركة.' : 'أصبح المشروع مشترَكاً.')
+      toast.success(t(project.isShared ? 'share.stopped' : 'share.started'))
     } catch {
-      toast.error('تعذّر تغيير حالة المشاركة.')
+      toast.error(t('share.toggleFailed'))
     } finally {
       setBusy(false)
     }
@@ -25,17 +27,15 @@ export default function ShareModal({ project, open, onClose }) {
   async function copy() {
     try {
       await navigator.clipboard.writeText(url)
-      toast.success('نُسخ الرابط.')
+      toast.success(t('share.copied'))
     } catch {
-      toast.error('تعذّر النسخ؛ انسخ الرابط يدوياً.')
+      toast.error(t('share.copyFailed'))
     }
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="مشاركة المشروع">
-      <p className="leading-relaxed text-slate-600 dark:text-slate-400">
-        يستطيع أي مستخدم مسجّل في بُنيان يملك الرابط أن يطّلع على المشروع ونتائجه، دون أن يعدّل شيئاً.
-      </p>
+    <Modal open={open} onClose={onClose} title={t('share.title')}>
+      <p className="leading-relaxed text-slate-600 dark:text-slate-400">{t('share.text')}</p>
       {project.isShared ? (
         <div className="mt-5 flex flex-col gap-3">
           <div className="flex gap-2">
@@ -43,22 +43,22 @@ export default function ShareModal({ project, open, onClose }) {
               readOnly
               dir="ltr"
               value={url}
-              aria-label="رابط المشاركة"
+              aria-label={t('share.link')}
               className={`${fieldClass} h-10 text-sm`}
             />
-            <Button onClick={copy} aria-label="نسخ الرابط">
+            <Button onClick={copy} aria-label={t('share.copyLink')}>
               <Copy className="size-4" />
-              نسخ
+              {t('share.copy')}
             </Button>
           </div>
           <Button variant="danger" onClick={toggle} loading={busy} className="self-start">
-            إيقاف المشاركة
+            {t('share.stop')}
           </Button>
         </div>
       ) : (
         <Button onClick={toggle} loading={busy} className="mt-5">
           <Link2 className="size-4" />
-          تفعيل رابط المشاركة
+          {t('share.start')}
         </Button>
       )}
     </Modal>

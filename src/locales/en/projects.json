@@ -1,0 +1,86 @@
+{
+  "newProject": "New project",
+  "cancel": "Cancel",
+  "now": "just now",
+  "lastEdited": "Last edited: {{date}}",
+  "status": {
+    "draft": "Draft",
+    "analyzing": "Analyzing",
+    "analyzed": "Analyzed",
+    "error": "Analysis failed"
+  },
+  "tabs": {
+    "description": "Description",
+    "analysis": "Analysis",
+    "diagrams": "Diagrams",
+    "database": "Database",
+    "report": "Report"
+  },
+  "dashboard": {
+    "title": "My projects",
+    "count_one": "{{count}} project",
+    "count_other": "{{count}} projects",
+    "search": "Search",
+    "searchPlaceholder": "Search project titles and descriptions",
+    "filter": "Filter by status",
+    "allStatuses": "All statuses",
+    "loadFailed": "Couldn't load your projects. Check your connection and reload the page.",
+    "noMatches": "No matching projects.",
+    "noDescription": "No description yet.",
+    "shared": "Shared",
+    "emptyTitle": "No projects yet",
+    "emptyText": "Create your first project and describe its idea, or try the library example to see what Bunyan builds."
+  },
+  "workspace": {
+    "cantOpen": "This project can't be opened",
+    "noPermission": "You don't have permission to view it, or its owner stopped sharing it.",
+    "notFound": "The project may have been deleted, or the link is wrong.",
+    "backToProjects": "Back to my projects",
+    "myProjects": "My projects",
+    "deleted": "Project deleted.",
+    "deleteFailed": "Couldn't delete the project.",
+    "readOnly": "Read only",
+    "share": "Share",
+    "delete": "Delete project",
+    "deleteForever": "Delete permanently",
+    "deleteConfirm": "“{{title}}” will be deleted together with all its analyses, diagrams and reports. This can't be undone.",
+    "underConstruction": "This section is under construction.",
+    "analyzeFirst": "Analyze the description first to see results here."
+  },
+  "description": {
+    "label": "System description",
+    "placeholder": "Describe the system: who uses it? What does each user do? What data is stored? What are the rules and constraints?",
+    "tooLong": "You exceeded the maximum ({{max}} characters).",
+    "saving": "Saving…",
+    "saveFailed": "Couldn't save",
+    "saved": "Saved"
+  },
+  "newProjectForm": {
+    "title": "Project title",
+    "titlePlaceholder": "e.g. Clinic appointment booking system",
+    "titleMin": "The title must be at least 3 characters",
+    "titleMax": "The title is too long",
+    "language": "Output language",
+    "languageHint": "Language of the analysis, diagrams and report.",
+    "descriptionHint": "{{length}} / {{max}} characters. You can write it later.",
+    "descriptionMax": "The description can be at most {{max}} characters",
+    "trySample": "Try the library example",
+    "submit": "Create project",
+    "created": "Project created.",
+    "createFailed": "Couldn't create the project. Please try again."
+  },
+  "share": {
+    "title": "Share project",
+    "text": "Any signed-in Bunyan user with the link can view the project and its results, without editing anything.",
+    "link": "Share link",
+    "copyLink": "Copy link",
+    "copy": "Copy",
+    "copied": "Link copied.",
+    "copyFailed": "Couldn't copy; copy the link manually.",
+    "start": "Enable share link",
+    "stop": "Stop sharing",
+    "started": "The project is now shared.",
+    "stopped": "Sharing stopped.",
+    "toggleFailed": "Couldn't change the sharing status."
+  }
+}

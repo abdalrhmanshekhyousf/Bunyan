@@ -1,15 +1,17 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { BrainCircuit, Check, Loader2 } from 'lucide-react'
 import { cn } from '@/utils/cn.js'
+import { useTranslation } from 'react-i18next'
 
 const STAGES = [
-  { id: 'thinking', label: 'قراءة الوصف واستخراج المتطلبات والكيانات' },
-  { id: 'validating', label: 'التحقق من النتيجة وتنظيفها' },
-  { id: 'saving', label: 'حفظ التحليل كإصدار جديد' },
+  { id: 'thinking', label: 'progress.thinking' },
+  { id: 'validating', label: 'progress.validating' },
+  { id: 'saving', label: 'progress.saving' },
 ]
 
 // شاشة انتظار متحركة تعرض مراحل التحليل (T4.9)
 export default function AnalysisProgress({ stage }) {
+  const { t } = useTranslation('analysis')
   const idx = Math.max(
     0,
     STAGES.findIndex((s) => s.id === (stage === 'retrying' ? 'thinking' : stage)),
@@ -38,11 +40,9 @@ export default function AnalysisProgress({ stage }) {
               >
                 <BrainCircuit className="size-8" />
               </motion.span>
-              <h2 className="mt-4 text-xl font-bold">يحلّل بُنيان وصفك…</h2>
+              <h2 className="mt-4 text-xl font-bold">{t('progress.title')}</h2>
               <p className="mt-1 text-sm text-slate-500">
-                {stage === 'retrying'
-                  ? 'لم تكن النتيجة الأولى سليمة؛ نعيد المحاولة.'
-                  : 'قد يستغرق ذلك نصف دقيقة.'}
+                {stage === 'retrying' ? t('progress.retrying') : t('progress.wait')}
               </p>
             </div>
             <ol className="mt-6 flex flex-col gap-3">
@@ -73,7 +73,7 @@ export default function AnalysisProgress({ stage }) {
                         i + 1
                       )}
                     </span>
-                    <span className={cn(active && 'font-semibold')}>{s.label}</span>
+                    <span className={cn(active && 'font-semibold')}>{t(s.label)}</span>
                   </li>
                 )
               })}

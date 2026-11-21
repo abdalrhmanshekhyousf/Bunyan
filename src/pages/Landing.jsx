@@ -16,7 +16,7 @@ import { useAuth } from '@/hooks/useAuth.js'
 import Navbar from '@/components/layout/Navbar.jsx'
 import { Badge, Button, Card } from '@/components/ui/index.js'
 import { LogoMark } from '@/components/ui/Logo.jsx'
-import { librarySample } from '@/features/projects/sampleProject.js'
+import { librarySamples } from '@/features/projects/sampleProject.js'
 
 const YEAR = new Date().getFullYear()
 
@@ -46,7 +46,7 @@ const fadeUp = {
 
 export default function Landing() {
   const { user } = useAuth()
-  const { t } = useTranslation('landing')
+  const { t, i18n } = useTranslation('landing')
   const start = user ? '/dashboard' : '/register'
   return (
     <div className="min-h-screen">
@@ -148,12 +148,16 @@ export default function Landing() {
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
           <motion.div {...fadeUp}>
             <Badge tone="teal">{t('example.badge')}</Badge>
-            <h2 className="mt-3 text-3xl font-bold">{librarySample.title}</h2>
+            <h2 className="mt-3 text-3xl font-bold">
+              {(librarySamples[i18n.language] ?? librarySamples.ar).title}
+            </h2>
             <Card className="mt-5 bg-slate-50 dark:bg-slate-900/60">
               <p className="text-sm font-semibold text-slate-500">
                 {t('example.descriptionLabel')}
               </p>
-              <p className="mt-2 leading-loose whitespace-pre-line">{librarySample.description}</p>
+              <p className="mt-2 leading-loose whitespace-pre-line">
+                {(librarySamples[i18n.language] ?? librarySamples.ar).description}
+              </p>
             </Card>
           </motion.div>
           <motion.div {...fadeUp} transition={{ duration: 0.5, delay: 0.1 }}>

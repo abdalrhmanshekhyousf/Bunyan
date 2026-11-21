@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import Button from '@/components/ui/Button.jsx'
 import { useAuth } from '@/hooks/useAuth.js'
 import { runAnalysis } from './analysisService.js'
@@ -10,6 +11,7 @@ import AnalysisProgress from './AnalysisProgress.jsx'
 const MIN_LENGTH = 40
 
 export default function AnalyzeButton({ project, onDone, variant = 'primary', label }) {
+  const { t } = useTranslation('analysis')
   const { user } = useAuth()
   const { remaining, limit } = useQuota()
   const [stage, setStage] = useState(null)
@@ -20,7 +22,7 @@ export default function AnalyzeButton({ project, onDone, variant = 'primary', la
     setStage('thinking')
     try {
       await runAnalysis({ project, uid: user.uid, onStage: setStage })
-      toast.success('اكتمل التحليل.')
+      toast.success(t('analyze.done'))
       onDone?.()
     } catch (e) {
       toast.error(e.message, { duration: 8000 })
@@ -35,17 +37,17 @@ export default function AnalyzeButton({ project, onDone, variant = 'primary', la
         variant={variant}
         onClick={onClick}
         disabled={tooShort || exhausted || !!stage}
-        title={tooShort ? `اكتب وصفاً لا يقل عن ${MIN_LENGTH} حرفاً` : undefined}
+        title={tooShort ? t('analyze.tooShortTitle', { min: MIN_LENGTH }) : undefined}
       >
         <Sparkles className="size-5" />
-        {label ?? (project.currentAnalysisId ? 'أعد التحليل' : 'حلّل الوصف')}
+        {label ?? t(project.currentAnalysisId ? 'analyze.again' : 'analyze.start')}
       </Button>
       <p className="text-xs text-slate-500">
         {tooShort
-          ? `اكتب وصفاً لا يقل عن ${MIN_LENGTH} حرفاً لتبدأ التحليل.`
+          ? t('analyze.tooShort', { min: MIN_LENGTH })
           : exhausted
-            ? `استنفدت تحليلاتك اليوم (${limit}). يتجدد الرصيد غداً.`
-            : remaining != null && `متبقٍّ لك اليوم: ${remaining} من ${limit} تحليلات`}
+            ? t('analyze.exhausted', { limit })
+            : remaining != null && t('analyze.remaining', { remaining, limit })}
       </p>
       <AnalysisProgress stage={stage} />
     </div>

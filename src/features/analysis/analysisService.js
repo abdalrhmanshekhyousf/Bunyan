@@ -12,6 +12,7 @@ import {
   updateDoc,
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase.js'
+import i18n from '@/lib/i18n.js'
 import { jsonModel, MODEL } from '@/lib/ai.js'
 import { analysisJsonSchema, analysisSchema } from './schema.js'
 import { designInstruction, designPrompt, systemInstruction, userPrompt } from './prompt.js'
@@ -19,11 +20,12 @@ import { designJsonSchema, parseDesign } from './designSchema.js'
 
 export const DEFAULT_DAILY_LIMIT = 10
 
-// أخطاء مفهومة للمستخدم (T4.9 + T4.13)
+// أخطاء مفهومة للمستخدم (T4.9 + T4.13)؛ الرسالة بلغة الواجهة الحالية
 export class AnalysisError extends Error {
-  constructor(kind, message) {
-    super(message)
+  constructor(kind, params = {}) {
+    super(i18n.t(`analysis:errors.${kind}`, params))
     this.kind = kind
+    this.params = params
   }
 }
 
@@ -31,20 +33,11 @@ function toAnalysisError(e) {
   if (e instanceof AnalysisError) return e
   const msg = String(e?.message ?? '')
   if (!navigator.onLine || /network|fetch failed|Failed to fetch/i.test(msg))
-    return new AnalysisError('network', 'انقطع الاتصال بالإنترنت. تحقّق من اتصالك ثم أعد المحاولة.')
-  if (/429|RESOURCE_EXHAUSTED|quota/i.test(msg))
-    return new AnalysisError(
-      'quota',
-      'انتهت الحصة المجانية لخدمة Gemini مؤقتاً. أعد المحاولة بعد دقائق.',
-    )
-  if (/App Check|401|403|PERMISSION_DENIED/i.test(msg))
-    return new AnalysisError('auth', 'تعذّر التحقق من التطبيق لدى خدمة الذكاء الاصطناعي.')
-  if (/SAFETY|blocked/i.test(msg))
-    return new AnalysisError(
-      'safety',
-      'رفضت خدمة الذكاء الاصطناعي هذا الوصف. عدّل صياغته ثم أعد المحاولة.',
-    )
-  return new AnalysisError('unknown', 'تعذّر إكمال التحليل. أعد المحاولة.')
+    return new AnalysisError('network')
+  if (/429|RESOURCE_EXHAUSTED|quota/i.test(msg)) return new AnalysisError('quota')
+  if (/App Check|401|403|PERMISSION_DENIED/i.test(msg)) return new AnalysisError('auth')
+  if (/SAFETY|blocked/i.test(msg)) return new AnalysisError('safety')
+  return new AnalysisError('unknown')
 }
 
 // ── حدّ الاستخدام اليومي (T4.11 + T4.12) ───────────────────────────────
@@ -79,11 +72,7 @@ async function consumeQuota(uid, dailyLimit) {
     const day = todayKey()
     const prev = snap.data()
     const count = prev?.day === day ? prev.count : 0
-    if (count >= dailyLimit)
-      throw new AnalysisError(
-        'limit',
-        `وصلت إلى حدّك اليومي (${dailyLimit} تحليلات). يتجدد الرصيد غداً.`,
-      )
+    if (count >= dailyLimit) throw new AnalysisError('limit', { limit: dailyLimit })
     tx.set(ref, { day, count: count + 1, updatedAt: serverTimestamp() })
   })
 }
@@ -102,11 +91,7 @@ export async function analyzeDescription(description, language = 'ar', onStage =
       onStage('validating')
       const raw = JSON.parse(result.response.text())
       const analysis = analysisSchema.parse(raw)
-      if (!analysis.entities.length && !analysis.functions.length)
-        throw new AnalysisError(
-          'empty',
-          'لم يُستخرج من الوصف ما يكفي. أضف تفاصيل عن المستخدمين والبيانات.',
-        )
+      if (!analysis.entities.length && !analysis.functions.length) throw new AnalysisError('empty')
       return analysis
     } catch (e) {
       lastError = e

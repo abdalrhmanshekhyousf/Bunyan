@@ -1,0 +1,110 @@
+{
+  "summary": "System summary",
+  "version": "Version {{version}}",
+  "noItems": "No items.",
+  "methods": "Operations: {{list}}",
+  "source": { "user": "Edited manually", "ai": "From AI" },
+  "sections": {
+    "requirements": "Requirements",
+    "actors": "Actors",
+    "functions": "Use cases",
+    "entities": "Entities",
+    "relationships": "Relationships",
+    "rules": "Business rules"
+  },
+  "empty": {
+    "title": "This project hasn't been analyzed yet",
+    "text": "Bunyan reads the description and extracts the requirements, actors, entities, relationships and business rules."
+  },
+  "edit": {
+    "start": "Edit",
+    "save": "Save changes",
+    "cancel": "Cancel",
+    "remove": "Delete",
+    "saved": "Changes saved as a new version.",
+    "saveFailed": "Couldn't save the changes. Check the fields and try again."
+  },
+  "history": {
+    "title": "Version history",
+    "button": "Versions ({{count}})",
+    "current": "Current",
+    "manual": "Manual edit",
+    "auto": "AI analysis",
+    "entities_one": "{{count}} entity",
+    "entities_other": "{{count}} entities",
+    "restore": "Restore",
+    "restored": "Version {{version}} restored."
+  },
+  "analyze": {
+    "start": "Analyze description",
+    "again": "Analyze again",
+    "done": "Analysis complete.",
+    "tooShortTitle": "Write a description of at least {{min}} characters",
+    "tooShort": "Write a description of at least {{min}} characters to start the analysis.",
+    "exhausted": "You've used all your analyses for today ({{limit}}). Your quota renews tomorrow.",
+    "remaining": "Remaining today: {{remaining}} of {{limit}} analyses"
+  },
+  "progress": {
+    "title": "Bunyan is analyzing your description…",
+    "wait": "This may take about half a minute.",
+    "retrying": "The first result wasn't valid; retrying.",
+    "thinking": "Reading the description and extracting requirements and entities",
+    "validating": "Validating and cleaning the result",
+    "saving": "Saving the analysis as a new version"
+  },
+  "errors": {
+    "network": "The internet connection dropped. Check your connection and try again.",
+    "quota": "The free Gemini quota is temporarily used up. Try again in a few minutes.",
+    "auth": "The app couldn't be verified with the AI service.",
+    "safety": "The AI service rejected this description. Rephrase it and try again.",
+    "unknown": "The analysis couldn't be completed. Please try again.",
+    "limit": "You've reached your daily limit ({{limit}} analyses). Your quota renews tomorrow.",
+    "empty": "Not enough could be extracted from the description. Add details about the users and the data."
+  },
+  "reqGroups": { "functional": "Functional", "nonFunctional": "Non-functional" },
+  "reqTypes": { "functional": "Functional", "nonFunctional": "Non-functional" },
+  "fields": {
+    "code": "Code",
+    "type": "Type",
+    "requirementText": "Requirement text",
+    "name": "Name",
+    "id": "Identifier",
+    "role": "Role",
+    "useCaseName": "Use case name",
+    "description": "Description",
+    "primaryKey": "Primary key",
+    "entityName": "Entity name",
+    "attribute": "Attribute",
+    "key": "Key",
+    "from": "From",
+    "to": "To",
+    "relationship": "Relationship",
+    "cardinality": "Cardinality",
+    "rule": "Rule"
+  },
+  "add": {
+    "requirement": "Add requirement",
+    "actor": "Add actor",
+    "useCase": "Add use case",
+    "attribute": "Add attribute",
+    "entity": "Add entity",
+    "relationship": "Add relationship",
+    "rule": "Add rule"
+  },
+  "remove": { "entity": "Delete entity", "attribute": "Delete attribute" },
+  "types": {
+    "string": "Short text",
+    "text": "Long text",
+    "int": "Integer",
+    "decimal": "Decimal",
+    "boolean": "Yes/No",
+    "date": "Date",
+    "datetime": "Date & time"
+  },
+  "cardinality": {
+    "1_1": "One to one",
+    "1_N": "One to many",
+    "N_1": "Many to one",
+    "M_N": "Many to many"
+  }
+}

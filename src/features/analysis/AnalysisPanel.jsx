@@ -12,6 +12,7 @@ import {
   Workflow,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import { Badge, Button, Card, Modal, Skeleton } from '@/components/ui/index.js'
 import { formatDate } from '@/features/projects/status.js'
 import { restoreVersion, saveEditedAnalysis } from './analysisService.js'
@@ -20,15 +21,22 @@ import AnalyzeButton from './AnalyzeButton.jsx'
 import * as S from './sections.jsx'
 
 const SECTIONS = [
-  { key: 'requirements', title: 'المتطلبات', icon: ListChecks, C: S.Requirements, wide: true },
-  { key: 'actors', title: 'الفاعلون', icon: Users, C: S.Actors },
-  { key: 'functions', title: 'حالات الاستخدام', icon: Workflow, C: S.Functions },
-  { key: 'entities', title: 'الكيانات', icon: Boxes, C: S.Entities, wide: true },
-  { key: 'relationships', title: 'العلاقات', icon: GitBranch, C: S.Relationships },
-  { key: 'rules', title: 'قواعد العمل', icon: Scale, C: S.Rules },
+  {
+    key: 'requirements',
+    title: 'sections.requirements',
+    icon: ListChecks,
+    C: S.Requirements,
+    wide: true,
+  },
+  { key: 'actors', title: 'sections.actors', icon: Users, C: S.Actors },
+  { key: 'functions', title: 'sections.functions', icon: Workflow, C: S.Functions },
+  { key: 'entities', title: 'sections.entities', icon: Boxes, C: S.Entities, wide: true },
+  { key: 'relationships', title: 'sections.relationships', icon: GitBranch, C: S.Relationships },
+  { key: 'rules', title: 'sections.rules', icon: Scale, C: S.Rules },
 ]
 
 export default function AnalysisPanel({ project, readOnly }) {
+  const { t } = useTranslation('analysis')
   const { current, versions, loading } = useAnalyses(project)
   const [draft, setDraft] = useState(null)
   const [saving, setSaving] = useState(false)
@@ -49,10 +57,8 @@ export default function AnalysisPanel({ project, readOnly }) {
         <span className="flex size-16 items-center justify-center rounded-2xl bg-navy/10 text-navy dark:bg-teal/15 dark:text-teal">
           <BrainCircuit className="size-8" />
         </span>
-        <h2 className="text-xl font-bold">لم يُحلَّل هذا المشروع بعد</h2>
-        <p className="max-w-md text-slate-600 dark:text-slate-400">
-          يقرأ بُنيان الوصف ويستخرج منه المتطلبات والفاعلين والكيانات والعلاقات وقواعد العمل.
-        </p>
+        <h2 className="text-xl font-bold">{t('empty.title')}</h2>
+        <p className="max-w-md text-slate-600 dark:text-slate-400">{t('empty.text')}</p>
         {!readOnly && (
           <div className="flex justify-center">
             <AnalyzeButton project={project} />
@@ -69,10 +75,10 @@ export default function AnalysisPanel({ project, readOnly }) {
     setSaving(true)
     try {
       await saveEditedAnalysis(project, draft)
-      toast.success('حُفظت التعديلات كإصدار جديد.')
+      toast.success(t('edit.saved'))
       setDraft(null)
     } catch {
-      toast.error('تعذّر حفظ التعديلات. تحقّق من الحقول ثم أعد المحاولة.')
+      toast.error(t('edit.saveFailed'))
     } finally {
       setSaving(false)
     }
@@ -82,9 +88,9 @@ export default function AnalysisPanel({ project, readOnly }) {
     <div className="flex flex-col gap-4">
       <Card className="no-print flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2 text-sm">
-          <Badge tone="navy">الإصدار {current.version}</Badge>
+          <Badge tone="navy">{t('version', { version: current.version })}</Badge>
           <Badge tone={current.source === 'user' ? 'amber' : 'teal'}>
-            {current.source === 'user' ? 'معدَّل يدوياً' : 'من الذكاء الاصطناعي'}
+            {t(current.source === 'user' ? 'source.user' : 'source.ai')}
           </Badge>
           <span className="text-slate-500">{formatDate(current.createdAt)}</span>
         </div>
@@ -93,10 +99,10 @@ export default function AnalysisPanel({ project, readOnly }) {
             {editing ? (
               <>
                 <Button variant="ghost" onClick={() => setDraft(null)} disabled={saving}>
-                  إلغاء
+                  {t('edit.cancel')}
                 </Button>
                 <Button onClick={save} loading={saving}>
-                  حفظ التعديلات
+                  {t('edit.save')}
                 </Button>
               </>
             ) : (
@@ -104,12 +110,12 @@ export default function AnalysisPanel({ project, readOnly }) {
                 {versions.length > 1 && (
                   <Button variant="ghost" onClick={() => setHistoryOpen(true)}>
                     <History className="size-4" />
-                    الإصدارات ({versions.length})
+                    {t('history.button', { count: versions.length })}
                   </Button>
                 )}
                 <Button variant="secondary" onClick={() => setDraft(structuredClone(current.data))}>
                   <Pencil className="size-4" />
-                  تعديل
+                  {t('edit.start')}
                 </Button>
                 <AnalyzeButton project={project} variant="secondary" />
               </>
@@ -122,7 +128,7 @@ export default function AnalysisPanel({ project, readOnly }) {
         <Card className="border-s-4 border-s-teal">
           <h3 className="flex items-center gap-2 font-bold">
             <BookCheck className="size-5 text-teal" />
-            ملخص النظام
+            {t('summary')}
           </h3>
           <p className="mt-2 leading-loose">{a.summary}</p>
         </Card>
@@ -142,7 +148,7 @@ export default function AnalysisPanel({ project, readOnly }) {
         ))}
       </div>
 
-      <Modal open={historyOpen} onClose={() => setHistoryOpen(false)} title="سجل الإصدارات">
+      <Modal open={historyOpen} onClose={() => setHistoryOpen(false)} title={t('history.title')}>
         <ul className="flex flex-col gap-2">
           {versions.map((v) => {
             const isCurrent = v.id === current.id
@@ -153,16 +159,17 @@ export default function AnalysisPanel({ project, readOnly }) {
               >
                 <div className="flex flex-col gap-1">
                   <span className="font-semibold">
-                    الإصدار {v.version}
+                    {t('version', { version: v.version })}
                     {isCurrent && (
                       <Badge tone="teal" className="ms-2">
-                        الحالي
+                        {t('history.current')}
                       </Badge>
                     )}
                   </span>
                   <span className="text-xs text-slate-500">
-                    {v.source === 'user' ? 'تعديل يدوي' : 'تحليل آلي'} · {formatDate(v.createdAt)} ·{' '}
-                    {v.data.entities.length} كيانات
+                    {t(v.source === 'user' ? 'history.manual' : 'history.auto')} ·{' '}
+                    {formatDate(v.createdAt)} ·{' '}
+                    {t('history.entities', { count: v.data.entities.length })}
                   </span>
                 </div>
                 {!isCurrent && (
@@ -171,11 +178,11 @@ export default function AnalysisPanel({ project, readOnly }) {
                     variant="secondary"
                     onClick={async () => {
                       await restoreVersion(project, v)
-                      toast.success(`استُعيد الإصدار ${v.version}.`)
+                      toast.success(t('history.restored', { version: v.version }))
                       setHistoryOpen(false)
                     }}
                   >
-                    استعادة
+                    {t('history.restore')}
                   </Button>
                 )}
               </li>

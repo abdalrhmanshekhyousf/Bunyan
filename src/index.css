@@ -11,6 +11,8 @@
   --color-teal-600: #0d9488;
   --color-ink: #0f172a;
   --font-sans: 'Readex Pro', ui-sans-serif, system-ui, sans-serif;
+  /* الخط أحادي المسافة لا يحوي حروفاً عربية، فيكملها Readex Pro موصولةً */
+  --font-mono: ui-monospace, SFMono-Regular, Consolas, 'Readex Pro', monospace;
 }
 
 @layer base {
