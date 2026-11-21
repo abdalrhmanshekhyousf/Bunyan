@@ -9,7 +9,10 @@ for (const [path, data] of Object.entries(files)) {
   ;(resources[lang] ??= {})[ns] = data
 }
 
-export const LANGUAGES = { ar: { dir: 'rtl', label: 'العربية' }, en: { dir: 'ltr', label: 'English' } }
+export const LANGUAGES = {
+  ar: { dir: 'rtl', label: 'العربية' },
+  en: { dir: 'ltr', label: 'English' },
+}
 
 function initialLanguage() {
   try {

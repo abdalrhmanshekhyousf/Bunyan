@@ -1,3 +1,14 @@
 {
-  "language": { "switch": "العربية" }
+  "language": { "switch": "العربية" },
+  "loading": "Loading",
+  "or": "or",
+  "nav": {
+    "home": "Home",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "projects": "My projects"
+  },
+  "theme": { "light": "Light mode", "dark": "Dark mode" },
+  "user": { "logout": "Log out", "loggedOut": "You have been logged out." },
+  "actions": { "close": "Close" }
 }

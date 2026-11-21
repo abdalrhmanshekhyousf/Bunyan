@@ -1,0 +1,121 @@
+{
+  "groups": {
+    "structure": "Structural diagrams",
+    "behavior": "Behavioral diagrams"
+  },
+  "types": {
+    "useCase": {
+      "label": "Use Case",
+      "what": "Shows who uses the system (the actors) and what each of them can do.",
+      "when": "At the start of analysis, to agree on the system boundary and functional requirements with the client.",
+      "symbols": "Circle: actor · Oval: use case · Frame: system boundary · Line: the actor performs the use case."
+    },
+    "class": {
+      "label": "Class",
+      "what": "Shows the structure of the system: classes, their attributes and operations, and the relationships between them.",
+      "when": "During design, before writing code.",
+      "symbols": "+ before a member: public · 1 and *: multiplicity (one / many) · Arrow: direction of the association."
+    },
+    "object": {
+      "label": "Object",
+      "what": "A snapshot of the running system: actual instances of the classes with real values and the links between them.",
+      "when": "To test and explain the class diagram with a realistic example.",
+      "symbols": "Rectangle: object as \"name : Class\" · Attributes with values · Line: link between two objects."
+    },
+    "sequence": {
+      "label": "Sequence",
+      "what": "Shows the messages exchanged between the actor, the system and the data, in time order, for one scenario.",
+      "when": "To explain an important scenario step by step.",
+      "symbols": "Solid line: request · Dashed line: reply · opt: a step that happens under a condition."
+    },
+    "collaboration": {
+      "label": "Collaboration",
+      "what": "Shows the same scenario as the sequence diagram, focusing on who talks to whom rather than on time.",
+      "when": "To understand the links between the objects taking part in a process.",
+      "symbols": "Node: object (:name) or actor · Arrow: message · Number: message order."
+    },
+    "activity": {
+      "label": "Activity",
+      "what": "Shows the sequence of steps and decisions in a process from start to finish.",
+      "when": "To understand a workflow and its branches before programming it.",
+      "symbols": "Rounded shape: start/end · Rectangle: step · Diamond: decision with two branches."
+    },
+    "state": {
+      "label": "State",
+      "what": "Shows the states an entity goes through during its life, and the events that move it from one state to another.",
+      "when": "For entities with a clear lifecycle, such as an order, a loan or a reservation.",
+      "symbols": "Black dot: start · Rounded rectangle: state · Arrow: transition named by its event · Double circle: end."
+    },
+    "er": {
+      "label": "Entity-Relationship",
+      "what": "Shows the stored entities, their attributes and the relationships between them; it is the basis of the database.",
+      "when": "When designing the database.",
+      "symbols": "PK: primary key · FK: foreign key · || : exactly one · o{ : zero or more."
+    },
+    "package": {
+      "label": "Package",
+      "what": "Groups classes into logical packages and shows how packages depend on each other.",
+      "when": "To organise a large system and split the work within the team.",
+      "symbols": "Frame: package · Rectangle inside: class · Dashed arrow: dependency."
+    },
+    "component": {
+      "label": "Component",
+      "what": "Shows the software parts that make up the system (user interfaces, services, database) and how they depend on each other.",
+      "when": "When designing the system architecture and splitting it into modules.",
+      "symbols": "Double rectangle: user interface · Rectangle: service · Cylinder: database · Hexagon: external service."
+    },
+    "deployment": {
+      "label": "Deployment",
+      "what": "Shows the devices and servers the system runs on, which components run on each, and how they connect.",
+      "when": "When planning how to run and deploy the system.",
+      "symbols": "Frame: node (device or server) with its kind in «» · Inside: components · Line: connection and its protocol."
+    }
+  },
+  "title": "{{label}} diagram",
+  "analyzeFirst": "Analyze the description first to draw the diagrams.",
+  "badges": {
+    "edited": "Edited manually",
+    "staleEdit": "Edited on an older analysis version"
+  },
+  "info": {
+    "toggle": "What is this diagram?",
+    "what": "What is it?",
+    "when": "When is it used?",
+    "symbols": "Symbols"
+  },
+  "actions": {
+    "editCode": "Edit code",
+    "regenerate": "Regenerate",
+    "cancel": "Cancel",
+    "save": "Save diagram"
+  },
+  "confirmDiscard": "Your unsaved changes will be lost. Continue?",
+  "toast": {
+    "saved": "Diagram saved.",
+    "saveFailed": "Could not save the diagram.",
+    "regenerated": "Diagram regenerated from the analysis.",
+    "designDone": "Extra diagrams designed.",
+    "downloadFailed": "Could not download the image; try SVG instead."
+  },
+  "design": {
+    "pendingTitle": "Bunyan is designing this diagram now…",
+    "pendingHint": "This takes about a minute and will appear here automatically. You can browse the other diagrams meanwhile.",
+    "failed": "Could not design the extra diagrams (state, object, package, component and deployment).",
+    "missing": "This analysis predates the extra diagrams (state, object, package, component and deployment).",
+    "generate": "Design the extra diagrams"
+  },
+  "noData": "The analysis does not have enough data for this diagram. Add it from the \"Analysis\" tab.",
+  "codeLabel": "Mermaid code",
+  "hint": "Drag to move the diagram, use Ctrl + mouse wheel or the buttons to zoom, and double-click to fit.",
+  "resetModal": {
+    "title": "Regenerate diagram",
+    "body": "You edited this diagram manually. Your changes will be deleted and it will be redrawn from the current analysis.",
+    "confirm": "Regenerate"
+  },
+  "view": {
+    "renderError": "Could not draw the diagram: the code has a syntax error.",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "fit": "Fit"
+  }
+}

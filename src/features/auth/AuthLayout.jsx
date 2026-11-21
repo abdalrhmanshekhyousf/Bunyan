@@ -1,11 +1,13 @@
 import { Link } from 'react-router'
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import Logo from '@/components/ui/Logo.jsx'
 import Card from '@/components/ui/Card.jsx'
 import ThemeToggle from '@/components/layout/ThemeToggle.jsx'
 import LanguageToggle from '@/components/layout/LanguageToggle.jsx'
 
 export default function AuthLayout({ title, subtitle, children, footer }) {
+  const { t } = useTranslation()
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center px-4 py-10">
       <div className="absolute end-3 top-3 flex items-center gap-1">
@@ -19,7 +21,7 @@ export default function AuthLayout({ title, subtitle, children, footer }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
       >
-        <Link to="/" className="mb-6 flex justify-center" aria-label="الصفحة الرئيسية">
+        <Link to="/" className="mb-6 flex justify-center" aria-label={t('nav.home')}>
           <Logo />
         </Link>
         <Card className="p-6 sm:p-8">
@@ -54,10 +56,11 @@ export function GoogleIcon() {
 }
 
 export function OrDivider() {
+  const { t } = useTranslation('auth')
   return (
     <div className="my-5 flex items-center gap-3 text-sm text-slate-500">
       <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
-      أو
+      {t('or')}
       <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
     </div>
   )

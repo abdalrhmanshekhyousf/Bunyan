@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import { Button, Input } from '@/components/ui/index.js'
 import AuthLayout, { OrDivider } from '@/features/auth/AuthLayout.jsx'
 import GoogleButton from '@/features/auth/GoogleButton.jsx'
@@ -11,11 +12,14 @@ import { authErrorMessage } from '@/features/auth/authErrors.js'
 
 // بعد نجاح الدخول ينقل GuestRoute المستخدم تلقائياً إلى وجهته
 export default function Login() {
+  const { t } = useTranslation('auth')
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(loginSchema) })
+  // رسائل التحقق مفاتيح ترجمة
+  const err = (e) => (e?.message ? t(e.message) : undefined)
 
   const onSubmit = async (values) => {
     try {
@@ -27,13 +31,13 @@ export default function Login() {
 
   return (
     <AuthLayout
-      title="تسجيل الدخول"
-      subtitle="أهلاً بعودتك إلى بُنيان."
+      title={t('login.title')}
+      subtitle={t('login.subtitle')}
       footer={
         <>
-          ليس لديك حساب؟{' '}
+          {t('login.noAccount')}{' '}
           <Link to="/register" className="font-semibold text-navy hover:underline dark:text-teal">
-            أنشئ حساباً
+            {t('login.createAccount')}
           </Link>
         </>
       }
@@ -42,29 +46,29 @@ export default function Login() {
       <OrDivider />
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
         <Input
-          label="البريد الإلكتروني"
+          label={t('fields.email')}
           type="email"
           dir="ltr"
           autoComplete="email"
-          error={errors.email?.message}
+          error={err(errors.email)}
           {...register('email')}
         />
         <Input
-          label="كلمة المرور"
+          label={t('fields.password')}
           type="password"
           dir="ltr"
           autoComplete="current-password"
-          error={errors.password?.message}
+          error={err(errors.password)}
           {...register('password')}
         />
         <Link
           to="/forgot-password"
           className="-mt-1 self-start text-sm text-slate-600 hover:underline dark:text-slate-400"
         >
-          نسيت كلمة المرور؟
+          {t('login.forgot')}
         </Link>
         <Button type="submit" loading={isSubmitting} className="w-full">
-          دخول
+          {t('login.submit')}
         </Button>
       </form>
     </AuthLayout>

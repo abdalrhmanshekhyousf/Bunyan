@@ -1,11 +1,13 @@
 import { NavLink } from 'react-router'
 import { AnimatePresence, motion } from 'motion/react'
 import { FolderKanban, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/utils/cn.js'
 
-const links = [{ to: '/dashboard', label: 'مشاريعي', icon: FolderKanban }]
+const links = [{ to: '/dashboard', label: 'nav.projects', icon: FolderKanban }]
 
 function NavItems({ onNavigate }) {
+  const { t } = useTranslation()
   return (
     <nav className="flex flex-col gap-1 p-3">
       {links.map(({ to, label, icon: Icon }) => (
@@ -23,15 +25,18 @@ function NavItems({ onNavigate }) {
           }
         >
           <Icon className="size-5" />
-          {label}
+          {t(label)}
         </NavLink>
       ))}
     </nav>
   )
 }
 
-// قائمة ثابتة على الشاشات الكبيرة، ودرج منزلق من اليمين على الجوال
+// قائمة ثابتة على الشاشات الكبيرة، ودرج منزلق من جهة البداية على الجوال
 export default function Sidebar({ open, onClose }) {
+  const { t, i18n } = useTranslation()
+  // جهة البداية: اليمين في العربية، واليسار في الإنجليزية
+  const offscreen = i18n.dir() === 'rtl' ? '100%' : '-100%'
   return (
     <>
       <aside className="no-print hidden w-60 shrink-0 border-e border-slate-200 lg:block dark:border-slate-800">
@@ -52,16 +57,16 @@ export default function Sidebar({ open, onClose }) {
             />
             <motion.aside
               className="absolute inset-y-0 start-0 w-72 bg-white shadow-xl dark:bg-slate-900"
-              initial={{ x: '100%' }}
+              initial={{ x: offscreen }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
+              exit={{ x: offscreen }}
               transition={{ type: 'tween', duration: 0.2 }}
             >
               <div className="flex justify-end p-3">
                 <button
                   type="button"
                   onClick={onClose}
-                  aria-label="إغلاق القائمة"
+                  aria-label={t('nav.closeMenu')}
                   className="rounded-lg p-2 hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   <X className="size-5" />

@@ -1,0 +1,79 @@
+{
+  "nav": { "projects": "My projects", "login": "Log in", "signup": "Get started free" },
+  "hero": {
+    "titleStart": "From an idea to a",
+    "titleHighlight": "complete system",
+    "subtitle": "Describe your system in your own words, and Bunyan turns it into requirements, UML diagrams, a database and a ready-to-submit report — in minutes, not days.",
+    "cta": "Start your first project",
+    "example": "See an example"
+  },
+  "steps": {
+    "title": "Five stages, one step from you",
+    "describe": {
+      "title": "Describe",
+      "text": "Write your system idea the way you would explain it to a classmate."
+    },
+    "analyze": {
+      "title": "Analyze",
+      "text": "AI extracts the requirements, actors, entities and business rules."
+    },
+    "diagrams": {
+      "title": "Diagrams",
+      "text": "Eleven ready UML diagrams: from use case and class to state, component and deployment."
+    },
+    "database": {
+      "title": "Database",
+      "text": "Tables, keys and SQL ready to copy into MySQL, PostgreSQL or SQLite."
+    },
+    "report": {
+      "title": "Report",
+      "text": "A well-organized report exported to PDF with all the diagrams."
+    }
+  },
+  "example": {
+    "badge": "Example",
+    "descriptionLabel": "The description the student wrote:",
+    "extracted": "What Bunyan extracted:",
+    "then": "Then eleven diagrams, six tables with their keys and a full report are built from it.",
+    "groups": {
+      "actors": { "label": "Actors", "items": ["Student", "Librarian", "Library manager"] },
+      "entities": {
+        "label": "Entities",
+        "items": ["Student", "Book", "Author", "Loan", "Reservation", "Fine"]
+      },
+      "rules": {
+        "label": "Business rules",
+        "items": [
+          "At most 3 books per student",
+          "Loan period is 14 days",
+          "A fine of 500 per day of delay"
+        ]
+      }
+    }
+  },
+  "features": {
+    "editable": {
+      "title": "Editable analysis",
+      "text": "You can edit, delete or add any item in the result."
+    },
+    "share": {
+      "title": "One-click sharing",
+      "text": "Share your project with your supervisor or team through a read-only link."
+    },
+    "secure": {
+      "title": "Safe and private",
+      "text": "Your projects are yours alone; nobody can read them without your permission."
+    }
+  },
+  "cta": {
+    "title": "Ready to build your project?",
+    "text": "Create a free account and run your first analysis now.",
+    "button": "Get started free"
+  },
+  "footer": "Bunyan © {{year}}",
+  "notFound": {
+    "title": "Page not found",
+    "text": "This page may have been deleted or its link changed.",
+    "back": "Back to home"
+  }
+}

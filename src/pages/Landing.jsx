@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/hooks/useAuth.js'
 import Navbar from '@/components/layout/Navbar.jsx'
 import { Badge, Button, Card } from '@/components/ui/index.js'
@@ -19,58 +20,22 @@ import { librarySample } from '@/features/projects/sampleProject.js'
 
 const YEAR = new Date().getFullYear()
 
+// النصوص في locales/*/landing.json
 const steps = [
-  { icon: Lightbulb, title: 'الوصف', text: 'اكتب فكرة نظامك بلغتك كما تشرحها لزميل.' },
-  {
-    icon: BrainCircuit,
-    title: 'التحليل',
-    text: 'يستخرج الذكاء الاصطناعي المتطلبات والفاعلين والكيانات والقواعد.',
-  },
-  {
-    icon: Network,
-    title: 'المخططات',
-    text: 'خمسة مخططات UML جاهزة: الاستخدام والأصناف والتتابع والنشاط وER.',
-  },
-  {
-    icon: Database,
-    title: 'قاعدة البيانات',
-    text: 'جداول ومفاتيح وكود SQL جاهز للنسخ إلى MySQL أو PostgreSQL أو SQLite.',
-  },
-  { icon: FileText, title: 'التقرير', text: 'تقرير عربي مرتّب يُصدَّر PDF بكل المخططات.' },
+  { icon: Lightbulb, key: 'describe' },
+  { icon: BrainCircuit, key: 'analyze' },
+  { icon: Network, key: 'diagrams' },
+  { icon: Database, key: 'database' },
+  { icon: FileText, key: 'report' },
 ]
 
 const features = [
-  {
-    icon: Sparkles,
-    title: 'تحليل قابل للتعديل',
-    text: 'كل عنصر في النتيجة تستطيع تعديله أو حذفه أو إضافة غيره.',
-  },
-  {
-    icon: Share2,
-    title: 'مشاركة بنقرة',
-    text: 'شارك مشروعك برابط للقراءة فقط مع المشرف أو الفريق.',
-  },
-  { icon: ShieldCheck, title: 'آمن وخاص', text: 'مشاريعك لك وحدك، ولا يقرؤها أحد دون إذنك.' },
+  { icon: Sparkles, key: 'editable' },
+  { icon: Share2, key: 'share' },
+  { icon: ShieldCheck, key: 'secure' },
 ]
 
-const sampleResults = [
-  ['الفاعلون', ['الطالب', 'أمين المكتبة', 'مدير المكتبة']],
-  [
-    'الكيانات',
-    [
-      'Student · طالب',
-      'Book · كتاب',
-      'Author · مؤلف',
-      'Loan · استعارة',
-      'Reservation · حجز',
-      'Fine · غرامة',
-    ],
-  ],
-  [
-    'قواعد العمل',
-    ['3 كتب كحدّ أقصى للطالب', 'مدة الاستعارة 14 يوماً', 'غرامة 500 ليرة عن كل يوم تأخير'],
-  ],
-]
+const sampleGroups = ['actors', 'entities', 'rules']
 
 const fadeUp = {
   initial: { opacity: 0, y: 24 },
@@ -81,22 +46,23 @@ const fadeUp = {
 
 export default function Landing() {
   const { user } = useAuth()
+  const { t } = useTranslation('landing')
   const start = user ? '/dashboard' : '/register'
   return (
     <div className="min-h-screen">
       <Navbar>
         {user ? (
           <Button as={Link} to="/dashboard" size="sm">
-            مشاريعي
+            {t('nav.projects')}
           </Button>
         ) : (
           <>
             <Button as={Link} to="/login" variant="ghost" size="sm">
-              تسجيل الدخول
+              {t('nav.login')}
             </Button>
             <span className="hidden sm:contents">
               <Button as={Link} to="/register" size="sm">
-                ابدأ مجاناً
+                {t('nav.signup')}
               </Button>
             </span>
           </>
@@ -120,7 +86,8 @@ export default function Landing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.5 }}
           >
-            من الفكرة إلى <span className="text-navy dark:text-teal">نظام متكامل</span>
+            {t('hero.titleStart')}{' '}
+            <span className="text-navy dark:text-teal">{t('hero.titleHighlight')}</span>
           </motion.h1>
           <motion.p
             className="mt-5 max-w-2xl text-lg leading-relaxed text-pretty text-slate-600 dark:text-slate-400"
@@ -128,8 +95,7 @@ export default function Landing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            صِف نظامك بالعربية، ويحوّله بُنيان إلى متطلبات ومخططات UML وقاعدة بيانات وتقرير جاهز
-            للتسليم، في دقائق بدل أيام.
+            {t('hero.subtitle')}
           </motion.p>
           <motion.div
             className="mt-8 flex flex-wrap justify-center gap-3"
@@ -138,11 +104,11 @@ export default function Landing() {
             transition={{ delay: 0.3, duration: 0.5 }}
           >
             <Button as={Link} to={start} size="lg">
-              ابدأ مشروعك الأول
-              <ArrowLeft className="size-5" />
+              {t('hero.cta')}
+              <ArrowLeft className="size-5 ltr:rotate-180" />
             </Button>
             <Button as="a" href="#example" variant="secondary" size="lg">
-              شاهد مثالاً
+              {t('hero.example')}
             </Button>
           </motion.div>
         </div>
@@ -152,11 +118,11 @@ export default function Landing() {
       <section className="px-4 py-16 sm:px-6">
         <div className="mx-auto max-w-6xl">
           <motion.h2 {...fadeUp} className="text-center text-3xl font-bold">
-            خمس مراحل، خطوة واحدة منك
+            {t('steps.title')}
           </motion.h2>
           <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {steps.map(({ icon: Icon, title, text }, i) => (
-              <motion.li key={title} {...fadeUp} transition={{ duration: 0.4, delay: i * 0.08 }}>
+            {steps.map(({ icon: Icon, key }, i) => (
+              <motion.li key={key} {...fadeUp} transition={{ duration: 0.4, delay: i * 0.08 }}>
                 <Card className="h-full">
                   <div className="flex items-center justify-between">
                     <span className="flex size-11 items-center justify-center rounded-xl bg-navy text-white dark:bg-teal/15 dark:text-teal">
@@ -166,9 +132,9 @@ export default function Landing() {
                       {i + 1}
                     </span>
                   </div>
-                  <h3 className="mt-4 text-lg font-bold">{title}</h3>
+                  <h3 className="mt-4 text-lg font-bold">{t(`steps.${key}.title`)}</h3>
                   <p className="mt-1.5 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                    {text}
+                    {t(`steps.${key}.text`)}
                   </p>
                 </Card>
               </motion.li>
@@ -181,10 +147,12 @@ export default function Landing() {
       <section id="example" className="scroll-mt-20 px-4 py-16 sm:px-6">
         <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-2">
           <motion.div {...fadeUp}>
-            <Badge tone="teal">مثال</Badge>
+            <Badge tone="teal">{t('example.badge')}</Badge>
             <h2 className="mt-3 text-3xl font-bold">{librarySample.title}</h2>
             <Card className="mt-5 bg-slate-50 dark:bg-slate-900/60">
-              <p className="text-sm font-semibold text-slate-500">الوصف الذي كتبه الطالب:</p>
+              <p className="text-sm font-semibold text-slate-500">
+                {t('example.descriptionLabel')}
+              </p>
               <p className="mt-2 leading-loose whitespace-pre-line">{librarySample.description}</p>
             </Card>
           </motion.div>
@@ -192,14 +160,16 @@ export default function Landing() {
             <Card className="h-full border-navy/20 dark:border-teal/20">
               <p className="flex items-center gap-2 font-semibold text-navy dark:text-teal">
                 <BrainCircuit className="size-5" />
-                ما استخرجه بُنيان:
+                {t('example.extracted')}
               </p>
               <dl className="mt-4 flex flex-col gap-5">
-                {sampleResults.map(([label, items]) => (
-                  <div key={label}>
-                    <dt className="text-sm font-semibold text-slate-500">{label}</dt>
+                {sampleGroups.map((group) => (
+                  <div key={group}>
+                    <dt className="text-sm font-semibold text-slate-500">
+                      {t(`example.groups.${group}.label`)}
+                    </dt>
                     <dd className="mt-2 flex flex-wrap gap-2">
-                      {items.map((x) => (
+                      {t(`example.groups.${group}.items`, { returnObjects: true }).map((x) => (
                         <Badge key={x} tone="navy" className="px-3 py-1 text-sm">
                           {x}
                         </Badge>
@@ -208,9 +178,7 @@ export default function Landing() {
                   </div>
                 ))}
               </dl>
-              <p className="mt-6 text-sm text-slate-500">
-                ثم تُبنى منها خمسة مخططات، وستة جداول مع مفاتيحها، وتقرير كامل.
-              </p>
+              <p className="mt-6 text-sm text-slate-500">{t('example.then')}</p>
             </Card>
           </motion.div>
         </div>
@@ -219,13 +187,13 @@ export default function Landing() {
       {/* المميزات */}
       <section className="px-4 py-16 sm:px-6">
         <div className="mx-auto grid max-w-6xl gap-4 sm:grid-cols-3">
-          {features.map(({ icon: Icon, title, text }, i) => (
-            <motion.div key={title} {...fadeUp} transition={{ duration: 0.4, delay: i * 0.08 }}>
+          {features.map(({ icon: Icon, key }, i) => (
+            <motion.div key={key} {...fadeUp} transition={{ duration: 0.4, delay: i * 0.08 }}>
               <Card className="h-full">
                 <Icon className="size-7 text-teal" />
-                <h3 className="mt-3 text-lg font-bold">{title}</h3>
+                <h3 className="mt-3 text-lg font-bold">{t(`features.${key}.title`)}</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
-                  {text}
+                  {t(`features.${key}.text`)}
                 </p>
               </Card>
             </motion.div>
@@ -239,17 +207,17 @@ export default function Landing() {
           {...fadeUp}
           className="mx-auto flex max-w-4xl flex-col items-center gap-5 rounded-3xl bg-navy px-6 py-12 text-center text-white"
         >
-          <h2 className="text-3xl font-bold">هل أنت مستعد لبناء مشروعك؟</h2>
-          <p className="text-indigo-100">أنشئ حساباً مجانياً وابدأ أول تحليل الآن.</p>
+          <h2 className="text-3xl font-bold">{t('cta.title')}</h2>
+          <p className="text-indigo-100">{t('cta.text')}</p>
           <Button as={Link} to={start} variant="accent" size="lg">
-            ابدأ مجاناً
-            <ArrowLeft className="size-5" />
+            {t('cta.button')}
+            <ArrowLeft className="size-5 ltr:rotate-180" />
           </Button>
         </motion.div>
       </section>
 
       <footer className="border-t border-slate-200 py-6 text-center text-sm text-slate-500 dark:border-slate-800">
-        بُنيان © {YEAR}
+        {t('footer', { year: YEAR })}
       </footer>
     </div>
   )

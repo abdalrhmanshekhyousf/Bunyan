@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { AlertTriangle, Maximize, Minus, Plus } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Skeleton } from '@/components/ui/index.js'
 import { useIsDark } from '@/hooks/useIsDark.js'
 import { renderMermaid } from './renderMermaid.js'
@@ -10,6 +11,7 @@ const MAX = 4
 // يرسم شيفرة Mermaid (T5.3) مع تكبير وتصغير وسحب (T5.5).
 // svgRef يُعطى للأب لاستعماله في التنزيل.
 export default function MermaidView({ code, svgRef, label }) {
+  const { t } = useTranslation('diagrams')
   const dark = useIsDark()
   const hostRef = useRef(null)
   const [state, setState] = useState({ status: 'loading', error: null })
@@ -77,7 +79,7 @@ export default function MermaidView({ code, svgRef, label }) {
         >
           <p className="flex items-center gap-2 font-semibold">
             <AlertTriangle className="size-5" />
-            تعذّر رسم المخطط: في الشيفرة خطأ صياغة.
+            {t('view.renderError')}
           </p>
           <pre dir="ltr" className="overflow-x-auto text-start text-xs whitespace-pre-wrap">
             {state.error}
@@ -106,16 +108,16 @@ export default function MermaidView({ code, svgRef, label }) {
           ref={hostRef}
         />
         <div className="no-print absolute start-3 bottom-3 flex items-center gap-1 rounded-xl bg-white/90 p-1 shadow ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-700">
-          <ZoomBtn label="تكبير" onClick={() => zoom(1.25)}>
+          <ZoomBtn label={t('view.zoomIn')} onClick={() => zoom(1.25)}>
             <Plus className="size-4" />
           </ZoomBtn>
           <span className="w-12 text-center text-xs tabular-nums">
             {Math.round(view.scale * 100)}%
           </span>
-          <ZoomBtn label="تصغير" onClick={() => zoom(1 / 1.25)}>
+          <ZoomBtn label={t('view.zoomOut')} onClick={() => zoom(1 / 1.25)}>
             <Minus className="size-4" />
           </ZoomBtn>
-          <ZoomBtn label="ملاءمة" onClick={() => setView({ scale: 1, x: 0, y: 0 })}>
+          <ZoomBtn label={t('view.fit')} onClick={() => setView({ scale: 1, x: 0, y: 0 })}>
             <Maximize className="size-4" />
           </ZoomBtn>
         </div>

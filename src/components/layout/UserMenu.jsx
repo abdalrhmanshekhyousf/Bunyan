@@ -1,17 +1,19 @@
 import { LogOut } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/hooks/useAuth.js'
 import { logout } from '@/features/auth/authService.js'
 import Button from '@/components/ui/Button.jsx'
 
 export default function UserMenu() {
   const { user } = useAuth()
+  const { t } = useTranslation()
   if (!user) return null
   const name = user.displayName || user.email
 
   async function onLogout() {
     await logout()
-    toast.success('سُجّل خروجك.')
+    toast.success(t('user.loggedOut'))
   }
 
   return (
@@ -33,8 +35,8 @@ export default function UserMenu() {
         variant="ghost"
         size="icon"
         onClick={onLogout}
-        aria-label="تسجيل الخروج"
-        title="تسجيل الخروج"
+        aria-label={t('user.logout')}
+        title={t('user.logout')}
       >
         <LogOut className="size-5 rtl:-scale-x-100" />
       </Button>

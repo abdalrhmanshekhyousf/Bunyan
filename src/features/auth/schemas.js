@@ -1,22 +1,28 @@
 import { z } from 'zod'
 
-const email = z.string().trim().min(1, 'أدخل البريد الإلكتروني').email('صيغة البريد غير صحيحة')
+// الرسائل مفاتيح ترجمة (auth:validation.*)، تُترجم عند العرض بـ t()
+// فتتغير مع تبديل اللغة دون إعادة بناء المخطط
+const email = z
+  .string()
+  .trim()
+  .min(1, 'auth:validation.emailRequired')
+  .email('auth:validation.emailInvalid')
 
 export const loginSchema = z.object({
   email,
-  password: z.string().min(1, 'أدخل كلمة المرور'),
+  password: z.string().min(1, 'auth:validation.passwordRequired'),
 })
 
 export const registerSchema = z
   .object({
-    name: z.string().trim().min(2, 'أدخل اسمك (حرفان على الأقل)').max(60, 'الاسم طويل جداً'),
+    name: z.string().trim().min(2, 'auth:validation.nameMin').max(60, 'auth:validation.nameMax'),
     email,
-    password: z.string().min(8, 'كلمة المرور 8 أحرف على الأقل'),
+    password: z.string().min(8, 'auth:validation.passwordMin'),
     confirm: z.string(),
   })
   .refine((v) => v.password === v.confirm, {
     path: ['confirm'],
-    message: 'كلمتا المرور غير متطابقتين',
+    message: 'auth:validation.passwordMismatch',
   })
 
 export const resetSchema = z.object({ email })

@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/utils/cn.js'
 
 // نافذة منبثقة: تُغلق بـ Escape أو بالنقر خارجها، وتنقل التركيز إليها عند الفتح
 export default function Modal({ open, onClose, title, children, footer, className }) {
   const ref = useRef(null)
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (!open) return
@@ -44,7 +46,7 @@ export default function Modal({ open, onClose, title, children, footer, classNam
               <button
                 type="button"
                 onClick={onClose}
-                aria-label="إغلاق"
+                aria-label={t('actions.close')}
                 className="rounded-lg p-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 <X className="size-5" />

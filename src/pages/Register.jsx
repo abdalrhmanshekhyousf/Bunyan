@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 import { Button, Input } from '@/components/ui/index.js'
 import AuthLayout, { OrDivider } from '@/features/auth/AuthLayout.jsx'
 import GoogleButton from '@/features/auth/GoogleButton.jsx'
@@ -10,16 +11,18 @@ import { register as registerUser } from '@/features/auth/authService.js'
 import { authErrorMessage } from '@/features/auth/authErrors.js'
 
 export default function Register() {
+  const { t } = useTranslation('auth')
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(registerSchema) })
+  const err = (e) => (e?.message ? t(e.message) : undefined)
 
   const onSubmit = async (values) => {
     try {
       await registerUser(values)
-      toast.success('أُنشئ حسابك بنجاح. أهلاً بك!')
+      toast.success(t('register.success'))
     } catch (e) {
       toast.error(authErrorMessage(e))
     }
@@ -27,13 +30,13 @@ export default function Register() {
 
   return (
     <AuthLayout
-      title="إنشاء حساب"
-      subtitle="ابدأ تحويل أفكارك إلى أنظمة متكاملة."
+      title={t('register.title')}
+      subtitle={t('register.subtitle')}
       footer={
         <>
-          لديك حساب؟{' '}
+          {t('register.haveAccount')}{' '}
           <Link to="/login" className="font-semibold text-navy hover:underline dark:text-teal">
-            سجّل الدخول
+            {t('register.login')}
           </Link>
         </>
       }
@@ -42,37 +45,37 @@ export default function Register() {
       <OrDivider />
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
         <Input
-          label="الاسم"
+          label={t('fields.name')}
           autoComplete="name"
-          error={errors.name?.message}
+          error={err(errors.name)}
           {...register('name')}
         />
         <Input
-          label="البريد الإلكتروني"
+          label={t('fields.email')}
           type="email"
           dir="ltr"
           autoComplete="email"
-          error={errors.email?.message}
+          error={err(errors.email)}
           {...register('email')}
         />
         <Input
-          label="كلمة المرور"
+          label={t('fields.password')}
           type="password"
           dir="ltr"
           autoComplete="new-password"
-          error={errors.password?.message}
+          error={err(errors.password)}
           {...register('password')}
         />
         <Input
-          label="تأكيد كلمة المرور"
+          label={t('fields.confirm')}
           type="password"
           dir="ltr"
           autoComplete="new-password"
-          error={errors.confirm?.message}
+          error={err(errors.confirm)}
           {...register('confirm')}
         />
         <Button type="submit" loading={isSubmitting} className="w-full">
-          إنشاء الحساب
+          {t('register.submit')}
         </Button>
       </form>
     </AuthLayout>

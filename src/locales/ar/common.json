@@ -1,3 +1,14 @@
 {
-  "language": { "switch": "English" }
+  "language": { "switch": "English" },
+  "loading": "جارٍ التحميل",
+  "or": "أو",
+  "nav": {
+    "home": "الصفحة الرئيسية",
+    "openMenu": "فتح القائمة",
+    "closeMenu": "إغلاق القائمة",
+    "projects": "مشاريعي"
+  },
+  "theme": { "light": "الوضع الفاتح", "dark": "الوضع الداكن" },
+  "user": { "logout": "تسجيل الخروج", "loggedOut": "سُجّل خروجك." },
+  "actions": { "close": "إغلاق" }
 }
