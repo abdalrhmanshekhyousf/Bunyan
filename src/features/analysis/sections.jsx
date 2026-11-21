@@ -464,7 +464,7 @@ export function Relationships({ items, edit, onChange, a }) {
           <SelectField
             label="التعدد"
             value={r.cardinality}
-            options={CARDINALITIES.map((c) => ({ value: c, label: `${CARD_LABELS[c]} (2066${c}2069)` }))}
+            options={CARDINALITIES.map((c) => ({ value: c, label: `${CARD_LABELS[c]} (⁦${c}⁩)` }))}
             onChange={(cardinality) => onChange(update(items, i, { cardinality }))}
           />
           <RemoveButton onClick={() => onChange(remove(items, i))} />
