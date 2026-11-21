@@ -39,8 +39,11 @@ try {
   await page.waitForURL('**/projects/**', { timeout: 15000 })
   step('أُنشئ المشروع: ' + page.url())
 
-  const ta = page.locator('textarea')
-  await page.waitForFunction(() => document.querySelector('textarea')?.value.length > 100)
+  const ta = page.locator('main textarea')
+  await page.waitForFunction(() => {
+    const t = document.querySelectorAll('main textarea')
+    return t.length === 1 && t[0].value.length > 100
+  })
   await ta.fill((await ta.inputValue()) + '\nسطر مضاف للاختبار.')
   await page.getByText('تم الحفظ').waitFor({ timeout: 10000 })
   await page.reload()
@@ -51,6 +54,20 @@ try {
       (v.includes('سطر مضاف للاختبار') && v.includes('مكتبة الجامعة')),
   )
 
+  await page.getByRole('button', { name: 'حلّل الوصف' }).click()
+  const t0 = Date.now()
+  await page.getByText('اكتمل التحليل.').waitFor({ timeout: 150000 })
+  step(`التحليل الذكي: ${((Date.now() - t0) / 1000).toFixed(0)} ثانية`)
+  await page.getByRole('heading', { name: /الكيانات/ }).waitFor()
+  await page.waitForTimeout(800)
+  await page.screenshot({ path: join(out, 'e2e-analysis.png'), fullPage: true })
+  await page.getByRole('button', { name: 'تعديل' }).click()
+  await page.getByRole('button', { name: 'إضافة قاعدة' }).click()
+  await page.getByLabel('القاعدة').last().fill('قاعدة مضافة في الاختبار')
+  await page.getByRole('button', { name: 'حفظ التعديلات' }).click()
+  await page.getByText('الإصدار 2').waitFor({ timeout: 10000 })
+  step('التعديل اليدوي حُفظ كإصدار 2')
+  await page.getByRole('tab', { name: 'الوصف' }).click()
   await page.getByRole('button', { name: 'مشاركة' }).click()
   await page.getByRole('button', { name: 'تفعيل رابط المشاركة' }).click()
   await page.getByLabel('رابط المشاركة').waitFor({ timeout: 10000 })

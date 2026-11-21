@@ -29,5 +29,14 @@ const out = await page.evaluate(async (mode) => {
     }
   }
 }, mode)
-console.log(JSON.stringify(out, null, 1).slice(0, 8000))
+if (out.a) {
+  const a = out.a
+  console.log(`${out.MODEL} · ${(out.ms / 1000).toFixed(1)}s`)
+  console.log('المتطلبات:', a.requirements.length, '| الفاعلون:', a.actors.map((x) => x.id).join(', '))
+  for (const e of a.entities)
+    console.log('  ', e.name, e.label, '|', e.attributes.map((x) => x.name + ':' + x.type + (x.isPrimaryKey ? '*' : '')).join(' '))
+  console.log('حالات الاستخدام:', a.functions.map((f) => `${f.label}[${f.actorIds}]`).join(' ; '))
+  console.log('العلاقات:', a.relationships.map((r) => `${r.from} ${r.cardinality} ${r.to} (${r.label})`).join(' ; '))
+  console.log('القواعد:', a.rules.length, '| خطوات السيناريو:', a.scenario.steps.length)
+} else console.log(out)
 await browser.close()

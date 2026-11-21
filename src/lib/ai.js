@@ -10,7 +10,7 @@ export function jsonModel({
   systemInstruction,
   schema,
   temperature = 0.3,
-  thinking = ThinkingLevel.LOW,
+  thinking = ThinkingLevel.MINIMAL,
 }) {
   return getGenerativeModel(ai, {
     model: MODEL,

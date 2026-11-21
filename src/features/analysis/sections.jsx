@@ -430,7 +430,7 @@ export function Relationships({ items, edit, onChange, a }) {
             <span className="font-semibold">{label[r.to] ?? r.to}</span>
             <Badge tone="teal">
               <ArrowLeftRight className="size-3" />
-              {CARD_LABELS[r.cardinality]} ({r.cardinality})
+              {CARD_LABELS[r.cardinality]} <bdi dir="ltr">({r.cardinality})</bdi>
             </Badge>
           </li>
         ))}
@@ -464,7 +464,7 @@ export function Relationships({ items, edit, onChange, a }) {
           <SelectField
             label="التعدد"
             value={r.cardinality}
-            options={CARDINALITIES.map((c) => ({ value: c, label: `${c} — ${CARD_LABELS[c]}` }))}
+            options={CARDINALITIES.map((c) => ({ value: c, label: `${CARD_LABELS[c]} (2066${c}2069)` }))}
             onChange={(cardinality) => onChange(update(items, i, { cardinality }))}
           />
           <RemoveButton onClick={() => onChange(remove(items, i))} />

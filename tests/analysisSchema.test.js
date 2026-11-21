@@ -82,3 +82,13 @@ describe('userPrompt', () => {
     expect(p.match(/<\/description>/g)).toHaveLength(1)
   })
 })
+
+describe('تنظيف النصوص', () => {
+  it('يحذف التطويل من التسميات', () => {
+    const a = analysisSchema.parse({
+      ...base,
+      relationships: [{ from: 'Book', to: 'Loan', cardinality: '1:N', label: 'يقوم بـ' }],
+    })
+    expect(a.relationships[0].label).toBe('يقوم ب')
+  })
+})

@@ -118,7 +118,8 @@ const clip = (max) =>
   z
     .string()
     .trim()
-    .transform((s) => s.slice(0, max))
+    // نحذف التطويل (ـ): يختفي في مخططات Mermaid (انظر T0.8)
+    .transform((s) => s.replace(/ـ/g, '').trim().slice(0, max))
 const label = clip(LIMITS.label).pipe(z.string().min(1))
 const text = clip(LIMITS.text)
 const id = z
