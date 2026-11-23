@@ -14,6 +14,7 @@ const apiKey = readFileSync('.env.local', 'utf8')
 const email = `e2e.${Date.now()}@bunyan-test.dev`
 const password = 'Test12345!'
 const step = (m) => console.log('•', m)
+let projectId // يُحذف في النهاية حتى لو فشل الاختبار في منتصفه
 
 const browser = await chromium.launch()
 const page = await browser.newPage({ viewport: { width: 1280, height: 800 } })
@@ -43,6 +44,7 @@ try {
     .click()
   await page.getByRole('button', { name: 'إنشاء المشروع' }).click()
   await page.waitForURL('**/projects/**', { timeout: 15000 })
+  projectId = page.url().split('/projects/')[1]
   step('أُنشئ المشروع: ' + page.url())
 
   const ta = page.locator('main textarea')
@@ -118,12 +120,21 @@ try {
   await page.getByRole('button', { name: 'حذف المشروع' }).click()
   await page.getByRole('button', { name: 'حذف نهائياً' }).click()
   await page.waitForURL('**/dashboard', { timeout: 15000 })
+  projectId = null
   step('حُذف المشروع: ' + (await toasts()))
 } catch (e) {
   process.exitCode = 1
   console.log('✗ فشل:', e.message.split('\n')[0], '| url:', page.url(), '| toasts:', await toasts())
   await page.screenshot({ path: join(out, 'e2e-fail.png') })
 } finally {
+  if (projectId)
+    await page
+      .evaluate(
+        async (id) => (await import('/src/features/projects/projectsService.js')).deleteProject(id),
+        projectId,
+      )
+      .then(() => step('حُذف المشروع التجريبي بعد الفشل'))
+      .catch(() => {})
   await browser.close()
   // حذف الحساب التجريبي عبر REST
   const r = await fetch(
