@@ -48,7 +48,8 @@ export function watchUsers(onData, onError) {
       onData(
         snap.docs
           .map((d) => ({ id: d.id, ...d.data() }))
-          .sort((a, b) => millis(b.createdAt) - millis(a.createdAt)),
+          // مستند بلا تاريخ إنشاء (قديم أو ناقص) يأتي في الآخر
+          .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0)),
       ),
     onError,
   )

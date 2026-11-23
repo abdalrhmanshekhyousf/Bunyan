@@ -65,6 +65,7 @@ async function expect(label, want, got) {
 const A = await makeUser('a')
 const B = await makeUser('b')
 const pid = `rules-${A.uid}`
+let M // حساب المدير إن مُرِّر، ويُستعمل أيضاً لحذف مستندات المستخدمين التجريبيين
 
 try {
   await expect(
@@ -145,7 +146,7 @@ try {
   await expect('أ ينشئ قالباً', 'deny', call(A, 'PATCH', `/templates/t-${A.uid}`, tpl(true)))
 
   if (process.env.ADMIN_EMAIL) {
-    const M = await signIn(process.env.ADMIN_EMAIL, process.env.ADMIN_PASSWORD)
+    M = await signIn(process.env.ADMIN_EMAIL, process.env.ADMIN_PASSWORD)
     const tid = `rules-tpl-${A.uid}`
     await expect('المدير يعدّ المستخدمين', 'allow', count(M, 'users'))
     await expect('المدير يعدّ المشاريع', 'allow', count(M, 'projects'))
@@ -197,9 +198,11 @@ try {
   }
 } finally {
   await call(A, 'DELETE', `/projects/${pid}`)
-  // عدّاد الاستخدام لا يحذفه إلا المدير؛ يبقى مستند صغير يتيم لكل تشغيل
+  // عدّاد الاستخدام ومستند المستخدم لا يحذفهما إلا المدير
+  if (M) await call(M, 'DELETE', `/usage/${A.uid}`)
   for (const u of [A, B]) {
-    await call(u, 'DELETE', `/users/${u.uid}`)
+    // حذف مستند المستخدم للمدير وحده؛ دون حساب مدير يبقى مستند يتيم
+    if (M) await call(M, 'DELETE', `/users/${u.uid}`)
     await fetch(`${ID}:delete?key=${key}`, {
       method: 'POST',
       headers: H,
