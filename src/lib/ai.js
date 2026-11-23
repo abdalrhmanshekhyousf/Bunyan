@@ -11,15 +11,21 @@ export function jsonModel({
   schema,
   temperature = 0.3,
   thinking = ThinkingLevel.MINIMAL,
+  // مهلة الطلب: الافتراضي في SDK ثلاث دقائق، فيبقى المستخدم معلّقاً حين تبطئ الخدمة قرب نفاد الحصة
+  timeout = 75_000,
 }) {
-  return getGenerativeModel(ai, {
-    model: MODEL,
-    systemInstruction,
-    generationConfig: {
-      responseMimeType: 'application/json',
-      responseJsonSchema: schema,
-      temperature,
-      thinkingConfig: { thinkingLevel: thinking },
+  return getGenerativeModel(
+    ai,
+    {
+      model: MODEL,
+      systemInstruction,
+      generationConfig: {
+        responseMimeType: 'application/json',
+        responseJsonSchema: schema,
+        temperature,
+        thinkingConfig: { thinkingLevel: thinking },
+      },
     },
-  })
+    { timeout },
+  )
 }

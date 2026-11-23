@@ -170,7 +170,9 @@ try {
       call(M, 'PATCH', `/users/${M.uid}?updateMask.fieldPaths=role`, { role: s('user') }),
     )
     // المشروع مشترَك من اختبار سابق؛ نعيده خاصاً ليكون الاختبار صادقاً
-    await call(A, 'PATCH', `/projects/${pid}?updateMask.fieldPaths=isShared`, { isShared: b(false) })
+    await call(A, 'PATCH', `/projects/${pid}?updateMask.fieldPaths=isShared`, {
+      isShared: b(false),
+    })
     await expect(
       'المدير يقرأ مخططات مشروع خاص',
       'deny',

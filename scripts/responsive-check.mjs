@@ -132,7 +132,12 @@ try {
   await check('dashboard-empty')
 
   await page.getByRole('button', { name: L.newProject }).first().click()
-  await page.getByRole('button', { name: L.sample }).click()
+  // زر مثال المكتبة، أو قالب المكتبة المنشور إن وُجد (يحلّ محل الزر)
+  await page
+    .getByRole('button', { name: L.sample })
+    .or(page.getByRole('button', { name: /مكتبة الجامعة|University Library/ }))
+    .first()
+    .click()
   await check('new-project-modal')
   await page.getByRole('button', { name: L.create }).click()
   await page.waitForURL('**/projects/**', { timeout: 20000 })

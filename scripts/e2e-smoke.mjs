@@ -1,7 +1,8 @@
-// اختبار دخاني على Firebase الحقيقي: تسجيل ← مشروع ← حفظ تلقائي ← مشاركة ← حذف، ثم حذف الحساب التجريبي.
+// اختبار المسار الكامل على Firebase الحقيقي (T10.3):
+// تسجيل ← مشروع ← حفظ تلقائي ← تحليل ← مخططات ← تقرير PDF ← تعديل ← مشاركة ← حذف، ثم حذف الحساب التجريبي.
 // الاستعمال: node scripts/e2e-smoke.mjs <outDir> [baseUrl]   (السيرفر يعمل، و.env.local موجود)
 import { chromium } from 'playwright'
-import { mkdirSync, readFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
 const out = process.argv[2] ?? 'e2e-out'
@@ -34,7 +35,12 @@ try {
   await page.screenshot({ path: join(out, 'e2e-1-empty.png') })
 
   await page.getByRole('button', { name: 'مشروع جديد' }).first().click()
-  await page.getByRole('button', { name: 'جرّب مثال المكتبة' }).click()
+  // زر مثال المكتبة، أو قالب المكتبة المنشور إن وُجد (يحلّ محل الزر)
+  await page
+    .getByRole('button', { name: 'جرّب مثال المكتبة' })
+    .or(page.getByRole('button', { name: /مكتبة الجامعة/ }))
+    .first()
+    .click()
   await page.getByRole('button', { name: 'إنشاء المشروع' }).click()
   await page.waitForURL('**/projects/**', { timeout: 15000 })
   step('أُنشئ المشروع: ' + page.url())
@@ -56,7 +62,11 @@ try {
 
   await page.getByRole('button', { name: 'حلّل الوصف' }).click()
   const t0 = Date.now()
-  await page.getByText('اكتمل التحليل.').waitFor({ timeout: 150000 })
+  // ننتظر النجاح أو إشعار الخطأ، فلا يطول الانتظار حين ترفض الخدمة (نفاد حصة Gemini مثلاً)
+  const errorToast = page.locator('[data-sonner-toast][data-type="error"]')
+  await page.getByText('اكتمل التحليل.').or(errorToast).first().waitFor({ timeout: 150000 })
+  if (await errorToast.count())
+    throw new Error('فشل التحليل: ' + (await errorToast.first().innerText()))
   step(`التحليل الذكي: ${((Date.now() - t0) / 1000).toFixed(0)} ثانية`)
   await page.getByRole('heading', { name: /الكيانات/ }).waitFor()
   await page.waitForTimeout(800)
@@ -68,6 +78,24 @@ try {
   step(`المخططات الإضافية ظهرت في الخلفية بعد ${((Date.now() - t1) / 1000).toFixed(0)} ثانية`)
   await page.waitForTimeout(800)
   await page.screenshot({ path: join(out, 'e2e-state.png') })
+  // التقرير الشامل وتصديره PDF عبر مسار الطباعة نفسه
+  await page.getByRole('tab', { name: 'التقرير', exact: true }).click()
+  await page.locator('.report-doc figure svg').first().waitFor({ timeout: 60000 })
+  await page.evaluate(() => document.body.classList.add('printing-report'))
+  await page.emulateMedia({ media: 'print' })
+  const pdfPath = join(out, 'e2e-report.pdf')
+  const pdf = await page.pdf({
+    path: pdfPath,
+    format: 'A4',
+    preferCSSPageSize: true,
+    printBackground: true,
+  })
+  await page.emulateMedia({ media: 'screen' })
+  await page.evaluate(() => document.body.classList.remove('printing-report'))
+  const pages = (pdf.toString('latin1').match(/\/Type\s*\/Page[^s]/g) ?? []).length
+  if (pages < 5) throw new Error(`تقرير PDF قصير: ${pages} صفحة`)
+  step(`تقرير PDF: ${pages} صفحة، ${Math.round(statSync(pdfPath).size / 1024)} KB`)
+
   await page.getByRole('tab', { name: 'التحليل' }).click()
   await page.getByRole('button', { name: 'تعديل' }).click()
   await page.getByRole('button', { name: 'إضافة قاعدة' }).click()
@@ -92,6 +120,7 @@ try {
   await page.waitForURL('**/dashboard', { timeout: 15000 })
   step('حُذف المشروع: ' + (await toasts()))
 } catch (e) {
+  process.exitCode = 1
   console.log('✗ فشل:', e.message.split('\n')[0], '| url:', page.url(), '| toasts:', await toasts())
   await page.screenshot({ path: join(out, 'e2e-fail.png') })
 } finally {

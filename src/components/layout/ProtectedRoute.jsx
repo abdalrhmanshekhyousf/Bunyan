@@ -2,7 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router'
 import { useAuth } from '@/hooks/useAuth.js'
 import Spinner from '@/components/ui/Spinner.jsx'
 
-function FullPageSpinner() {
+export function FullPageSpinner() {
   return (
     <div className="flex min-h-screen items-center justify-center text-navy dark:text-teal">
       <Spinner className="size-8" />

@@ -34,6 +34,7 @@ function toAnalysisError(e) {
   const msg = String(e?.message ?? '')
   if (!navigator.onLine || /network|fetch failed|Failed to fetch/i.test(msg))
     return new AnalysisError('network')
+  if (/Timeout has expired|AbortError/i.test(msg)) return new AnalysisError('timeout')
   if (/429|RESOURCE_EXHAUSTED|quota/i.test(msg)) return new AnalysisError('quota')
   if (/App Check|401|403|PERMISSION_DENIED/i.test(msg)) return new AnalysisError('auth')
   if (/SAFETY|blocked/i.test(msg)) return new AnalysisError('safety')
@@ -97,7 +98,9 @@ export async function analyzeDescription(description, language = 'ar', onStage =
       lastError = e
       // لا نعيد المحاولة في الأخطاء التي لن تتغير بالإعادة
       const kind = toAnalysisError(e).kind
-      if (e instanceof AnalysisError || ['network', 'auth', 'safety'].includes(kind)) break
+      // ولا بعد انتهاء المهلة، كي لا يطول الانتظار إلى ضعفها
+      if (e instanceof AnalysisError || ['network', 'auth', 'safety', 'timeout'].includes(kind))
+        break
     }
   }
   throw toAnalysisError(lastError)
@@ -108,6 +111,7 @@ export async function generateDesign(analysis, language = 'ar') {
   const model = jsonModel({
     systemInstruction: designInstruction(language),
     schema: designJsonSchema,
+    timeout: 120_000, // يعمل في الخلفية فلا يضرّ انتظاره أطول
   })
   const result = await model.generateContent(designPrompt(analysis))
   return parseDesign(
