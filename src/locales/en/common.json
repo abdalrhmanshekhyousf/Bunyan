@@ -11,5 +11,10 @@
   },
   "theme": { "light": "Light mode", "dark": "Dark mode" },
   "user": { "logout": "Log out", "loggedOut": "You have been logged out." },
-  "actions": { "close": "Close" }
+  "actions": { "close": "Close" },
+  "install": {
+    "label": "Install app",
+    "hint": "Install Bunyan on your device to open it in its own window like any app",
+    "done": "Bunyan was installed on your device."
+  }
 }
