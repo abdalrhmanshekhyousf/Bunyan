@@ -6,7 +6,8 @@
     "home": "Home",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "projects": "My projects"
+    "projects": "My projects",
+    "admin": "Admin dashboard"
   },
   "theme": { "light": "Light mode", "dark": "Dark mode" },
   "user": { "logout": "Log out", "loggedOut": "You have been logged out." },

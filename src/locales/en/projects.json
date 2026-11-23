@@ -65,6 +65,7 @@
     "descriptionHint": "{{length}} / {{max}} characters. You can write it later.",
     "descriptionMax": "The description can be at most {{max}} characters",
     "trySample": "Try the library example",
+    "templates": "Ready-made examples:",
     "submit": "Create project",
     "created": "Project created.",
     "createFailed": "Couldn't create the project. Please try again."

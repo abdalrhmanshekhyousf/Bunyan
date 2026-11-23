@@ -1,16 +1,21 @@
 import { NavLink } from 'react-router'
 import { AnimatePresence, motion } from 'motion/react'
-import { FolderKanban, X } from 'lucide-react'
+import { FolderKanban, ShieldCheck, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/utils/cn.js'
+import { useAuth } from '@/hooks/useAuth.js'
 
 const links = [{ to: '/dashboard', label: 'nav.projects', icon: FolderKanban }]
+// رابط لوحة المدير يظهر للمدير وحده (المرحلة 8)
+const adminLink = { to: '/admin', label: 'nav.admin', icon: ShieldCheck }
 
 function NavItems({ onNavigate }) {
   const { t } = useTranslation()
+  const { isAdmin } = useAuth()
+  const items = isAdmin ? [...links, adminLink] : links
   return (
     <nav className="flex flex-col gap-1 p-3">
-      {links.map(({ to, label, icon: Icon }) => (
+      {items.map(({ to, label, icon: Icon }) => (
         <NavLink
           key={to}
           to={to}

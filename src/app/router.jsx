@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router'
 import AppLayout from '@/components/layout/AppLayout.jsx'
-import { GuestRoute, ProtectedRoute } from '@/components/layout/ProtectedRoute.jsx'
+import { AdminRoute, GuestRoute, ProtectedRoute } from '@/components/layout/ProtectedRoute.jsx'
 import Landing from '@/pages/Landing.jsx'
 import Login from '@/pages/Login.jsx'
 import Register from '@/pages/Register.jsx'
@@ -8,6 +8,7 @@ import ForgotPassword from '@/pages/ForgotPassword.jsx'
 import NotFound from '@/pages/NotFound.jsx'
 import Dashboard from '@/pages/Dashboard.jsx'
 import ProjectWorkspace from '@/pages/ProjectWorkspace.jsx'
+import AdminDashboard from '@/pages/AdminDashboard.jsx'
 
 export const router = createBrowserRouter([
   { path: '/', element: <Landing /> },
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
           { path: '/dashboard', element: <Dashboard /> },
           { path: '/projects/:projectId', element: <ProjectWorkspace /> },
           { path: '/share/:projectId', element: <ProjectWorkspace shared /> },
+          { element: <AdminRoute />, children: [{ path: '/admin', element: <AdminDashboard /> }] },
         ],
       },
     ],

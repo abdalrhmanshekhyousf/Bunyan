@@ -1,8 +1,9 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { BookOpen } from 'lucide-react'
+import { BookOpen, FileText } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
 import { Button, Input, Modal, Textarea } from '@/components/ui/index.js'
@@ -10,6 +11,7 @@ import { fieldClass, Field } from '@/components/ui/Input.jsx'
 import { useAuth } from '@/hooks/useAuth.js'
 import { createProject, MAX_DESCRIPTION } from './projectsService.js'
 import { librarySamples } from './sampleProject.js'
+import { watchPublishedTemplates } from '@/features/admin/adminService.js'
 
 const schema = z.object({
   title: z.string().trim().min(3, 'newProjectForm.titleMin').max(120, 'newProjectForm.titleMax'),
@@ -18,6 +20,7 @@ const schema = z.object({
 })
 
 // نافذة «مشروع جديد» (T3.4) مع زر «جرّب مثال المكتبة» (T3.9)
+// والقوالب التي نشرها المدير بلغة المخرجات المختارة (T8.4)
 export default function NewProjectModal({ open, onClose }) {
   const { t, i18n } = useTranslation('projects')
   const { user } = useAuth()
@@ -36,6 +39,19 @@ export default function NewProjectModal({ open, onClose }) {
   const length = useWatch({ control, name: 'description' })?.length ?? 0
   const language = useWatch({ control, name: 'language' })
   const err = (e) => (e?.message ? t(e.message, { max: MAX_DESCRIPTION }) : undefined)
+  const [templates, setTemplates] = useState([])
+
+  useEffect(() => {
+    if (!open) return
+    // القوالب إضافة اختيارية: إن تعذّر تحميلها يبقى مثال المكتبة
+    return watchPublishedTemplates(setTemplates, () => setTemplates([]))
+  }, [open])
+  const shown = templates.filter((tpl) => tpl.language === language)
+
+  function fillTemplate(tpl) {
+    setValue('title', tpl.title, { shouldValidate: true })
+    setValue('description', tpl.description, { shouldValidate: true })
+  }
 
   function close() {
     reset()
@@ -83,10 +99,24 @@ export default function NewProjectModal({ open, onClose }) {
         noValidate
         className="flex flex-col gap-4"
       >
-        <Button variant="secondary" size="sm" onClick={fillSample} className="self-start">
-          <BookOpen className="size-4" />
-          {t('newProjectForm.trySample')}
-        </Button>
+        {shown.length > 0 ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-semibold text-slate-600 dark:text-slate-400">
+              {t('newProjectForm.templates')}
+            </span>
+            {shown.map((tpl) => (
+              <Button key={tpl.id} variant="secondary" size="sm" onClick={() => fillTemplate(tpl)}>
+                <FileText className="size-4" />
+                {tpl.title}
+              </Button>
+            ))}
+          </div>
+        ) : (
+          <Button variant="secondary" size="sm" onClick={fillSample} className="self-start">
+            <BookOpen className="size-4" />
+            {t('newProjectForm.trySample')}
+          </Button>
+        )}
         <Input
           label={t('newProjectForm.title')}
           placeholder={t('newProjectForm.titlePlaceholder')}

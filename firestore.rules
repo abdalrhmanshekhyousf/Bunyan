@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// قواعد أمان بُنيان (T2.10 + T3.11)
+// قواعد أمان بُنيان (T2.10 + T3.11 + T8.5)
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -18,18 +18,23 @@ service cloud.firestore {
     match /users/{uid} {
       allow read: if isSelf(uid) || isAdmin();
       allow create: if isSelf(uid) && request.resource.data.role == 'user';
-      allow update: if (isSelf(uid) && unchanged('role')) || isAdmin();
+      // المدير يغيّر حقل الدور وحده، ولا يغيّر دوره هو فلا تبقى المنصة بلا مدير (T8.5)
+      allow update: if (isSelf(uid) && unchanged('role'))
+        || (isAdmin() && uid != request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role'])
+            && request.resource.data.role in ['user', 'admin']);
       allow delete: if isAdmin();
     }
 
-    // المشاريع: المالك يكتب، والمشترَك يقرؤه أي مستخدم مسجّل
+    // المشاريع: المالك يكتب، والمشترَك يقرؤه أي مستخدم مسجّل.
+    // المدير يقرأ مستند المشروع (لعدّه في الإحصاءات) لا مجموعاته الفرعية (T8.5)
     match /projects/{projectId} {
       function project() { return get(/databases/$(database)/documents/projects/$(projectId)).data; }
       function canRead(data) {
-        return isSelf(data.ownerId) || (signedIn() && data.get('isShared', false) == true) || isAdmin();
+        return isSelf(data.ownerId) || (signedIn() && data.get('isShared', false) == true);
       }
 
-      allow read: if canRead(resource.data);
+      allow read: if canRead(resource.data) || isAdmin();
       allow create: if signedIn()
         && request.resource.data.ownerId == request.auth.uid
         && request.resource.data.title is string
@@ -45,6 +50,25 @@ service cloud.firestore {
         allow read: if canRead(project());
         allow write: if isSelf(project().ownerId);
       }
+    }
+
+    // عدّ التحليلات على مستوى المنصة (T8.3): استعلام collectionGroup للمدير وحده
+    match /{path=**}/analyses/{analysisId} {
+      allow read: if isAdmin();
+    }
+
+    // القوالب، أي الأمثلة الجاهزة (T8.4): المنشور يقرؤه كل مسجّل، والمدير وحده يكتب
+    match /templates/{templateId} {
+      function validTemplate(d) {
+        return d.keys().hasOnly(['title', 'description', 'language', 'published', 'createdAt', 'updatedAt'])
+          && d.title is string && d.title.size() > 0 && d.title.size() <= 120
+          && d.description is string && d.description.size() <= 5000
+          && d.language in ['ar', 'en']
+          && d.published is bool;
+      }
+      allow read: if (signedIn() && resource.data.published == true) || isAdmin();
+      allow create, update: if isAdmin() && validTemplate(request.resource.data);
+      allow delete: if isAdmin();
     }
 
     // عدّاد الاستخدام اليومي (T4.11 / T4.12)

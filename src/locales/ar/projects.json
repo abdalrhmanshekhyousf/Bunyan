@@ -69,6 +69,7 @@
     "descriptionHint": "{{length}} / {{max}} حرف. يمكنك كتابته لاحقاً.",
     "descriptionMax": "الوصف {{max}} حرف كحدّ أقصى",
     "trySample": "جرّب مثال المكتبة",
+    "templates": "أمثلة جاهزة:",
     "submit": "إنشاء المشروع",
     "created": "أُنشئ المشروع.",
     "createFailed": "تعذّر إنشاء المشروع. أعد المحاولة."
