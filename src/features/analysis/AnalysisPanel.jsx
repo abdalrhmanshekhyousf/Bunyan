@@ -139,7 +139,7 @@ export default function AnalysisPanel({ project, readOnly }) {
       <Stagger className="grid gap-4 md:grid-cols-2">
         {SECTIONS.map(({ key, title, icon, C, wide }) => (
           <StaggerItem key={key} className={wide ? 'md:col-span-2' : ''}>
-            <S.Section title={title} icon={icon} count={a[key].length} className="h-full">
+            <S.Section title={t(title)} icon={icon} count={a[key].length} className="h-full">
               <C items={a[key]} edit={editing} onChange={setSection(key)} a={a} />
             </S.Section>
           </StaggerItem>
