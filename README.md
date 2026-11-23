@@ -1,16 +1,111 @@
-# React + Vite
+# بُنيان — Bunyan
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+**من الفكرة إلى نظام متكامل.** تطبيق ويب يحوّل وصفاً نصياً لنظام برمجي، مكتوباً بالعربية أو الإنجليزية، إلى:
 
-Currently, two official plugins are available:
+- تحليل متطلبات: الفاعلون والكيانات والمتطلبات الوظيفية وغير الوظيفية وقواعد العمل
+- 11 مخطط UML (حالات الاستخدام، الأصناف، التسلسل، النشاط، الحالة، الكيانات والعلاقات، وغيرها)
+- تصميم قاعدة بيانات مع شيفرة SQL جاهزة
+- تقرير شامل يُصدَّر PDF
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+الموقع المنشور: https://bunyan-b69ea.web.app
 
-## React Compiler
+## التقنيات
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| الجزء             | التقنية                                                 |
+| ----------------- | ------------------------------------------------------- |
+| الواجهة           | React 19، Vite، Tailwind CSS v4، Motion، Lucide         |
+| التوجيه والنماذج  | React Router، React Hook Form، Zod                      |
+| الترجمة           | i18next (العربية والإنجليزية، مع RTL)                   |
+| الخلفية           | Firebase: Authentication وFirestore وHosting وApp Check |
+| الذكاء الاصطناعي  | Firebase AI Logic مع Gemini (لا مفتاح Gemini في الكود)  |
+| المخططات والتقرير | Mermaid، والطباعة إلى PDF من المتصفح                    |
+| الاختبار          | Vitest، وPlaywright، واختبارات قواعد الأمان عبر REST    |
 
-## Expanding the Oxlint configuration
+## التثبيت والتشغيل
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+المتطلبات: Node.js 20 أو أحدث، ومشروع Firebase.
+
+```bash
+git clone https://github.com/abdalrhmanshekhyousf/Bunyan.git
+cd Bunyan
+npm install
+cp .env.example .env.local   # ثم املأ القيم (انظر الجدول التالي)
+npm run dev -- --port 5199
+```
+
+افتح http://localhost:5199
+
+### متغيّرات البيئة (`.env.local`)
+
+| المتغيّر                     | الوصف                                                             |
+| --------------------------- | ----------------------------------------------------------------- |
+| `VITE_FIREBASE_*`           | إعدادات تطبيق الويب من Firebase Console ← Project settings        |
+| `VITE_RECAPTCHA_SITE_KEY`   | مفتاح reCAPTCHA v3 الذي سُجّل به التطبيق في App Check               |
+| `VITE_APPCHECK_DEBUG_TOKEN` | للتطوير المحلي: رمز debug يُسجَّل في App Check ← Manage debug tokens |
+| `VITE_GEMINI_MODEL`         | اسم النموذج (الافتراضي `gemini-3.6-flash`)                        |
+| `VITE_USE_EMULATORS`        | `true` لتشغيل التطبيق على محاكيات Firebase المحلية                |
+
+### إعداد مشروع Firebase
+
+1. فعّل **Authentication** بطريقتي البريد وكلمة المرور، وGoogle.
+2. أنشئ قاعدة **Firestore**، وانشر القواعد والفهارس:
+   ```bash
+   npx firebase deploy --only firestore
+   ```
+3. فعّل **AI Logic** مع Gemini Developer API.
+4. فعّل **App Check** بمزوّد reCAPTCHA v3، وافرضه على AI Logic (وعلى Firestore في الإنتاج).
+5. عيّن أول مدير يدوياً كما في [docs/admin.md](docs/admin.md).
+
+## الأوامر
+
+| الأمر                                              | الوظيفة                                                                                                                           |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                                      | خادم التطوير                                                                                                                      |
+| `npm run build`                                    | بناء نسخة الإنتاج في `dist/`                                                                                                      |
+| `npm run lint`                                     | فحص الشيفرة بـ oxlint                                                                                                             |
+| `npm run format`                                   | تنسيق الشيفرة بـ Prettier                                                                                                         |
+| `npm test`                                         | اختبارات الوحدات (المحوّلات إلى Mermaid وSQL، ومخطط التحليل)                                                                       |
+| `npm run test:rules`                               | اختبار قواعد الأمان على Firestore الحقيقي، ثم حذف البيانات التجريبية. ولاختبار صلاحيات المدير مرّر `ADMIN_EMAIL` و`ADMIN_PASSWORD` |
+| `npm run test:e2e`                                 | اختبار المسار الكامل بـ Playwright: تسجيل ← مشروع ← تحليل ← مخططات ← PDF ← تعديل ← مشاركة ← حذف                                   |
+| `node scripts/responsive-check.mjs <dir> [ar\|en]` | فحص التجاوب (390 و768 و1280px) والأزرار بلا اسم                                                                                   |
+
+اختبارا `test:e2e` و`responsive-check` يحتاجان خادم التطوير على المنفذ 5199. وينشئ كل منهما حساباً تجريبياً ثم يحذفه.
+
+## النشر
+
+```bash
+npm run build
+npx firebase deploy --only hosting
+```
+
+الاستضافة على Firebase Hosting، وكل المسارات تُوجَّه إلى `index.html` (انظر `firebase.json`).
+
+## بنية المشروع
+
+```
+src/
+  app/          الموجّه والمزوّدات (الدخول، الحركة، الإشعارات)
+  pages/        الصفحات (تُحمَّل عند الطلب ما عدا الرئيسية)
+  features/
+    auth/       التسجيل والدخول ومستند المستخدم
+    projects/   المشاريع والمشاركة والأمثلة
+    analysis/   التحليل الذكي: التعليمات، والمخطط، والتحقق، والإصدارات، والحصة اليومية
+    diagrams/   توليد المخططات وعرضها وتنزيلها
+    database/   تصميم الجداول وتوليد SQL
+    report/     التقرير الشامل وتصديره PDF
+    admin/      لوحة المدير: الإحصاءات والمستخدمون والقوالب
+  components/   مكوّنات الواجهة والتخطيط والحركة
+  utils/        المحوّلات: toMermaid وtoSQL وtoTables
+  locales/      ملفات الترجمة ar وen
+scripts/        اختبارات Playwright وقواعد الأمان
+tests/          اختبارات Vitest
+docs/           توثيق إضافي
+firestore.rules قواعد الأمان
+```
+
+## الأمان والحدود
+
+- قواعد Firestore تحصر المشروع في مالكه، إلا إذا فعّل المالك رابط المشاركة فيصير قراءة فقط لأي مستخدم مسجّل. ولا يستطيع أي مستخدم ترقية نفسه إلى مدير.
+- لكل مستخدم حدّ يومي من التحليلات (10 افتراضياً، ويُغيَّر من Console بالحقل `dailyAnalyses` في المستند `settings/limits`). يُحسب اليوم من وقت الخادم فلا يمكن تزويره.
+- App Check يمنع استدعاء Gemini من خارج التطبيق.
+- الخطة المجانية لـ Gemini محدودة بعدد من الطلبات يومياً لكل مشروع. وحين تنفد تظهر للمستخدم رسالة واضحة.
