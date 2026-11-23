@@ -5,7 +5,7 @@ import { chromium } from 'playwright'
 const B = process.argv[2] ?? 'http://localhost:5200'
 const browser = await chromium.launch()
 const page = await browser.newPage()
-await page.goto(B + '/', { waitUntil: 'load' })
+await page.goto(B + '/', { waitUntil: 'domcontentloaded', timeout: 60000 })
 const sw = await page.evaluate(async () => {
   const reg = await Promise.race([
     navigator.serviceWorker.ready,
@@ -24,7 +24,8 @@ console.log(
 )
 // العمل دون اتصال: الواجهة تُفتح من الذاكرة
 await page.context().setOffline(true)
-await page.reload({ waitUntil: 'load' }).catch(() => {})
+await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {})
+await page.waitForTimeout(3000)
 const offline = await page.locator('#root *').count()
 console.log('دون اتصال:', offline ? '✓ الواجهة تُفتح' : '✗ لا تُفتح')
 await browser.close()
