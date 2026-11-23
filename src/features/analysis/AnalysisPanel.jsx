@@ -19,6 +19,7 @@ import { restoreVersion, saveEditedAnalysis } from './analysisService.js'
 import { useAnalyses } from './useAnalysis.js'
 import AnalyzeButton from './AnalyzeButton.jsx'
 import * as S from './sections.jsx'
+import { Stagger, StaggerItem } from '@/components/motion/Stagger.jsx'
 
 const SECTIONS = [
   {
@@ -134,19 +135,16 @@ export default function AnalysisPanel({ project, readOnly }) {
         </Card>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* تظهر الأقسام تباعاً عند فتح التحليل (T9.4) */}
+      <Stagger className="grid gap-4 md:grid-cols-2">
         {SECTIONS.map(({ key, title, icon, C, wide }) => (
-          <S.Section
-            key={key}
-            title={title}
-            icon={icon}
-            count={a[key].length}
-            className={wide ? 'md:col-span-2' : ''}
-          >
-            <C items={a[key]} edit={editing} onChange={setSection(key)} a={a} />
-          </S.Section>
+          <StaggerItem key={key} className={wide ? 'md:col-span-2' : ''}>
+            <S.Section title={title} icon={icon} count={a[key].length} className="h-full">
+              <C items={a[key]} edit={editing} onChange={setSection(key)} a={a} />
+            </S.Section>
+          </StaggerItem>
         ))}
-      </div>
+      </Stagger>
 
       <Modal open={historyOpen} onClose={() => setHistoryOpen(false)} title={t('history.title')}>
         <ul className="flex flex-col gap-2">

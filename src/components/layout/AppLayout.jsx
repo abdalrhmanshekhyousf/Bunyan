@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Outlet } from 'react-router'
 import Navbar from './Navbar.jsx'
 import Sidebar from './Sidebar.jsx'
 import UserMenu from './UserMenu.jsx'
+import PageTransition from '@/components/motion/PageTransition.jsx'
 
 // تخطيط الصفحات الداخلية: شريط علوي + قائمة جانبية + المحتوى
 export default function AppLayout() {
@@ -15,7 +15,7 @@ export default function AppLayout() {
       <div className="flex">
         <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
         <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">
-          <Outlet />
+          <PageTransition />
         </main>
       </div>
     </div>

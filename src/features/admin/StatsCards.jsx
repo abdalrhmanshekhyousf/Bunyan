@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { FileStack, FolderKanban, RefreshCw, Sparkles, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button, Card, Skeleton } from '@/components/ui/index.js'
+import { Stagger, StaggerItem } from '@/components/motion/Stagger.jsx'
 import { getStats } from './adminService.js'
 
 const CARDS = [
@@ -46,32 +47,34 @@ export default function StatsCards() {
           {t('refresh')}
         </Button>
       </div>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <Stagger className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {CARDS.map(({ key, icon: Icon }) => {
           const value = stats?.[key]
           return (
-            <Card key={key} className="flex items-center gap-4 p-4">
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-teal/15 text-teal-600 dark:text-teal">
-                <Icon className="size-5" />
-              </span>
-              <div className="min-w-0">
-                <p className="truncate text-sm text-slate-600 dark:text-slate-400">
-                  {t(`stats.${key}`)}
-                </p>
-                {loading && !stats ? (
-                  <Skeleton className="mt-1 h-7 w-12" />
-                ) : value == null ? (
-                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                    {t('stats.unavailable')}
+            <StaggerItem key={key}>
+              <Card className="flex h-full items-center gap-4 p-4">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-teal/15 text-teal-600 dark:text-teal">
+                  <Icon className="size-5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm text-slate-600 dark:text-slate-400">
+                    {t(`stats.${key}`)}
                   </p>
-                ) : (
-                  <p className="text-2xl font-bold tabular-nums">{fmt.format(value)}</p>
-                )}
-              </div>
-            </Card>
+                  {loading && !stats ? (
+                    <Skeleton className="mt-1 h-7 w-12" />
+                  ) : value == null ? (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                      {t('stats.unavailable')}
+                    </p>
+                  ) : (
+                    <p className="text-2xl font-bold tabular-nums">{fmt.format(value)}</p>
+                  )}
+                </div>
+              </Card>
+            </StaggerItem>
           )
         })}
-      </div>
+      </Stagger>
     </section>
   )
 }

@@ -1,3 +1,5 @@
+import { Link } from 'react-router'
+import { motion } from 'motion/react'
 import { cn } from '@/utils/cn.js'
 import Spinner from './Spinner.jsx'
 
@@ -16,6 +18,13 @@ const sizes = {
   icon: 'size-10',
 }
 
+// نسخ motion للعناصر التي تُمرَّر في as، تُنشأ مرة واحدة خارج العرض
+const MotionLink = motion.create(Link)
+const MOTION = { button: motion.button, a: motion.a }
+
+// تفاعل صغير عند الضغط (T9.5)؛ يتعطّل تلقائياً مع تفضيل تقليل الحركة
+const tap = { scale: 0.97 }
+
 export default function Button({
   as: Comp = 'button',
   variant = 'primary',
@@ -27,8 +36,13 @@ export default function Button({
   ...props
 }) {
   const isButton = Comp === 'button'
+  const inactive = disabled || loading
+  // عنصر غير معروف (نادر) يُعرض دون حركة
+  const Tag = Comp === Link ? MotionLink : (MOTION[Comp] ?? Comp)
+  const animated = Tag !== Comp
   return (
-    <Comp
+    <Tag
+      {...(animated && !inactive ? { whileTap: tap } : {})}
       className={cn(
         'inline-flex items-center justify-center rounded-xl font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50',
         variants[variant],
@@ -40,6 +54,6 @@ export default function Button({
     >
       {loading && <Spinner className="size-4" />}
       {children}
-    </Comp>
+    </Tag>
   )
 }

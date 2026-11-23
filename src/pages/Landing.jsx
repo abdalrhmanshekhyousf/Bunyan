@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/hooks/useAuth.js'
 import Navbar from '@/components/layout/Navbar.jsx'
 import { Badge, Button, Card } from '@/components/ui/index.js'
-import { LogoMark } from '@/components/ui/Logo.jsx'
+import AnimatedLogoMark from '@/components/motion/AnimatedLogoMark.jsx'
 import { librarySamples } from '@/features/projects/sampleProject.js'
 
 const YEAR = new Date().getFullYear()
@@ -73,13 +73,7 @@ export default function Landing() {
       <section className="relative overflow-hidden px-4 pt-16 pb-20 sm:px-6 sm:pt-24">
         <div className="pointer-events-none absolute inset-x-0 -top-40 mx-auto h-96 max-w-3xl rounded-full bg-teal/20 blur-3xl dark:bg-teal/10" />
         <div className="relative mx-auto flex max-w-3xl flex-col items-center text-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <LogoMark className="size-20 sm:size-24" />
-          </motion.div>
+          <AnimatedLogoMark className="size-20 sm:size-24" />
           <motion.h1
             className="mt-6 text-4xl leading-tight font-bold text-balance sm:text-6xl"
             initial={{ opacity: 0, y: 20 }}
