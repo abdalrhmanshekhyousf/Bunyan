@@ -223,25 +223,34 @@ try {
       )
       .catch(() => {})
   await browser.close()
-  const H = { 'Content-Type': 'application/json', Referer: B }
-  for (const u of Object.values(users)) {
-    const r = await fetch(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: H,
-        body: JSON.stringify({ email: u.email, password, returnSecureToken: true }),
-      },
-    ).then((x) => x.json())
-    if (r.idToken)
-      await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:delete?key=${apiKey}`, {
-        method: 'POST',
-        headers: H,
-        body: JSON.stringify({ idToken: r.idToken }),
-      })
-  }
+  // النتائج تُحفظ قبل حذف الحسابات، فانقطاع الشبكة أثناء الحذف لا يضيّعها
   writeFileSync(join(out, 'results.json'), JSON.stringify(results, null, 2))
   const failed = results.filter((r) => !r.ok).length
   console.log(`\n${results.length - failed} من ${results.length} خطوة نجحت`)
   process.exitCode = failed ? 1 : 0
+
+  const H = { 'Content-Type': 'application/json', Referer: B }
+  const api = (op, body) =>
+    fetch(`https://identitytoolkit.googleapis.com/v1/accounts:${op}?key=${apiKey}`, {
+      method: 'POST',
+      headers: H,
+      body: JSON.stringify(body),
+    }).then((x) => x.json())
+  for (const u of Object.values(users)) {
+    let done = false
+    for (let i = 0; i < 3 && !done; i++) {
+      try {
+        const r = await api('signInWithPassword', {
+          email: u.email,
+          password,
+          returnSecureToken: true,
+        })
+        if (r.idToken) await api('delete', { idToken: r.idToken })
+        done = true // حُذف، أو لم يُنشأ أصلاً
+      } catch {
+        await new Promise((res) => setTimeout(res, 5000))
+      }
+    }
+    if (!done) console.log(`  ⚠ تعذّر حذف الحساب التجريبي ${u.email} (كلمة المرور ${password})`)
+  }
 }
