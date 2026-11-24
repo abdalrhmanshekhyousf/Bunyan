@@ -9,6 +9,8 @@ import { join } from 'node:path'
 
 const out = process.argv[2] ?? 'tc-out'
 const B = 'http://localhost:5199'
+// الشبكة البطيئة تؤخّر حدث load (الخطوط والموارد الخارجية)، فننتظر جاهزية المستند فقط
+const NAV = { waitUntil: 'domcontentloaded', timeout: 90000 }
 mkdirSync(out, { recursive: true })
 const apiKey = readFileSync('.env.local', 'utf8')
   .match(/VITE_FIREBASE_API_KEY=(.*)/)[1]
@@ -47,17 +49,17 @@ const pb = await newPage()
 const shot = (p, name) => p.screenshot({ path: join(out, `${name}.png`) })
 
 async function register(page, u) {
-  await page.goto(B + '/register')
+  await page.goto(B + '/register', NAV)
   await page.getByLabel('الاسم').fill(u.name)
   await page.getByLabel('البريد الإلكتروني').fill(u.email)
   await page.getByLabel('كلمة المرور', { exact: true }).fill(password)
   await page.getByLabel('تأكيد كلمة المرور').fill(password)
   await page.getByRole('button', { name: 'إنشاء الحساب' }).click()
-  await page.waitForURL('**/dashboard', { timeout: 20000 })
+  await page.waitForURL('**/dashboard', { timeout: 60000 })
 }
 
 async function login(page, email, pass) {
-  await page.goto(B + '/login')
+  await page.goto(B + '/login', NAV)
   await page.getByLabel('البريد الإلكتروني').fill(email)
   await page.getByLabel('كلمة المرور', { exact: true }).fill(pass)
   await page.getByRole('button', { name: 'دخول', exact: true }).click()
@@ -69,28 +71,28 @@ try {
   console.log('TC-01: إنشاء حساب وتسجيل الدخول')
   await check('TC-01', 'إنشاء حساب جديد ينقل إلى لوحة المشاريع', async () => {
     await register(pa, users.A)
-    await pa.getByRole('heading', { name: 'لا توجد مشاريع بعد' }).waitFor({ timeout: 10000 })
+    await pa.getByRole('heading', { name: 'لا توجد مشاريع بعد' }).waitFor({ timeout: 60000 })
   })
   await check('TC-01', 'تسجيل الخروج يعيد إلى الصفحة العامة', async () => {
     await pa.getByRole('button', { name: 'تسجيل الخروج' }).click()
-    await pa.getByText('سُجّل خروجك.').waitFor({ timeout: 10000 })
+    await pa.getByText('سُجّل خروجك.').waitFor({ timeout: 60000 })
   })
   await check('TC-01', 'كلمة مرور خاطئة تُرفض برسالة واضحة', async () => {
     await login(pa, users.A.email, 'WrongPass99!')
     await pa
       .getByText('البريد الإلكتروني أو كلمة المرور غير صحيحة.')
       .first()
-      .waitFor({ timeout: 15000 })
+      .waitFor({ timeout: 60000 })
     if (pa.url().includes('/dashboard')) throw new Error('دخل رغم كلمة المرور الخاطئة')
     await shot(pa, 'TC-01-wrong-password')
   })
   await check('TC-01', 'الدخول بالبيانات الصحيحة', async () => {
     await login(pa, users.A.email, password)
-    await pa.waitForURL('**/dashboard', { timeout: 20000 })
+    await pa.waitForURL('**/dashboard', { timeout: 60000 })
   })
   await check('TC-01', 'صفحة محمية دون دخول تحوّل إلى صفحة الدخول', async () => {
-    await pb.goto(B + '/dashboard')
-    await pb.waitForURL('**/login', { timeout: 15000 })
+    await pb.goto(B + '/dashboard', NAV)
+    await pb.waitForURL('**/login', { timeout: 60000 })
   })
 
   // ── TC-02 ──
@@ -99,24 +101,24 @@ try {
     await pa.getByRole('button', { name: 'مشروع جديد' }).first().click()
     await pa.getByLabel('عنوان المشروع').fill('مشروع حالات الاختبار')
     await pa.getByRole('button', { name: 'إنشاء المشروع' }).click()
-    await pa.waitForURL('**/projects/**', { timeout: 20000 })
+    await pa.waitForURL('**/projects/**', { timeout: 60000 })
     projectId = pa.url().split('/projects/')[1]
     return projectId
   })
   await check('TC-02', 'زر التحليل معطّل والوصف قصير', async () => {
     const btn = pa.getByRole('button', { name: /حلّل الوصف|الوصف قصير/ }).first()
-    await btn.waitFor({ timeout: 15000 })
+    await btn.waitFor({ timeout: 60000 })
     if (!(await btn.isDisabled())) throw new Error('الزر مفعّل مع وصف فارغ')
   })
   await check('TC-02', 'الوصف يُحفظ تلقائياً ويبقى بعد إعادة التحميل', async () => {
     const ta = pa.locator('main textarea')
     await ta.fill(SAMPLE)
-    await pa.getByText('تم الحفظ').waitFor({ timeout: 15000 })
+    await pa.getByText('تم الحفظ').waitFor({ timeout: 60000 })
     await pa.reload()
     await pa.waitForFunction(
       () => document.querySelector('main textarea')?.value.length > 100,
       null,
-      { timeout: 15000 },
+      { timeout: 60000 },
     )
     const v = await ta.inputValue()
     if (!v.includes('مكتبة الجامعة')) throw new Error('لم يُحفظ الوصف')
@@ -124,7 +126,7 @@ try {
   })
   await check('TC-02', 'زر التحليل يُفعَّل بعد كتابة الوصف', async () => {
     const btn = pa.getByRole('button', { name: 'حلّل الوصف' })
-    await btn.waitFor({ timeout: 10000 })
+    await btn.waitFor({ timeout: 60000 })
     if (await btn.isDisabled()) throw new Error('الزر ما زال معطّلاً')
     await shot(pa, 'TC-02-workspace')
   })
@@ -133,8 +135,8 @@ try {
   console.log('TC-03: خصوصية المشروع والمشاركة للقراءة فقط')
   await check('TC-03', 'مستخدم آخر لا يفتح المشروع الخاص', async () => {
     await register(pb, users.B)
-    await pb.goto(`${B}/projects/${projectId}`)
-    await pb.getByText('لا يمكن فتح هذا المشروع').waitFor({ timeout: 15000 })
+    await pb.goto(`${B}/projects/${projectId}`, NAV)
+    await pb.getByText('لا يمكن فتح هذا المشروع').waitFor({ timeout: 60000 })
     await shot(pb, 'TC-03-private')
   })
   let shareUrl
@@ -142,14 +144,14 @@ try {
     await pa.getByRole('button', { name: 'مشاركة' }).click()
     await pa.getByRole('button', { name: 'تفعيل رابط المشاركة' }).click()
     const input = pa.getByLabel('رابط المشاركة')
-    await input.waitFor({ timeout: 15000 })
+    await input.waitFor({ timeout: 60000 })
     shareUrl = await input.inputValue()
     await pa.keyboard.press('Escape')
     return shareUrl
   })
   await check('TC-03', 'المستخدم الآخر يفتح الرابط للقراءة فقط', async () => {
-    await pb.goto(shareUrl)
-    await pb.getByText('قراءة فقط').waitFor({ timeout: 15000 })
+    await pb.goto(shareUrl, NAV)
+    await pb.getByText('قراءة فقط').waitFor({ timeout: 60000 })
     const ta = pb.locator('main textarea')
     if (!((await ta.getAttribute('readonly')) !== null)) throw new Error('الوصف قابل للتعديل')
     if (await pb.getByRole('button', { name: 'حذف المشروع' }).count())
@@ -177,36 +179,36 @@ try {
     if (await pa.locator('[data-sonner-toast][data-type="error"]').count())
       throw new Error('لم يُنفَّذ: فشل التحليل في الخطوة السابقة')
     for (const h of [/الكيانات/, /الفاعلون/, /المتطلبات/])
-      await pa.getByRole('heading', { name: h }).first().waitFor({ timeout: 15000 })
+      await pa.getByRole('heading', { name: h }).first().waitFor({ timeout: 60000 })
     await shot(pa, 'TC-04-analysis')
   })
 
   // ── TC-05 ──
   console.log('TC-05: صلاحيات لوحة المدير')
   await check('TC-05', 'المستخدم العادي لا يرى رابط لوحة المدير', async () => {
-    await pb.goto(B + '/dashboard')
-    await pb.getByRole('heading', { name: 'مشاريعي' }).first().waitFor({ timeout: 15000 })
+    await pb.goto(B + '/dashboard', NAV)
+    await pb.getByRole('heading', { name: 'مشاريعي' }).first().waitFor({ timeout: 60000 })
     if (await pb.getByRole('link', { name: 'لوحة المدير' }).count()) throw new Error('الرابط ظاهر')
   })
   await check('TC-05', 'المستخدم العادي يُعاد من /admin إلى لوحته', async () => {
-    await pb.goto(B + '/admin')
-    await pb.waitForURL('**/dashboard', { timeout: 15000 })
+    await pb.goto(B + '/admin', NAV)
+    await pb.waitForURL('**/dashboard', { timeout: 60000 })
   })
   if (process.env.ADMIN_EMAIL) {
     const pm = await newPage()
     await check('TC-05', 'المدير يرى الإحصاءات وجدول المستخدمين', async () => {
       await login(pm, process.env.ADMIN_EMAIL, process.env.ADMIN_PASSWORD)
-      await pm.waitForURL('**/dashboard', { timeout: 20000 })
+      await pm.waitForURL('**/dashboard', { timeout: 60000 })
       await pm.getByRole('link', { name: 'لوحة المدير' }).first().click()
-      await pm.waitForURL('**/admin', { timeout: 15000 })
-      await pm.getByText(users.A.email).waitFor({ timeout: 15000 })
+      await pm.waitForURL('**/admin', { timeout: 60000 })
+      await pm.getByText(users.A.email).waitFor({ timeout: 60000 })
       await pm.waitForTimeout(1500)
       if (await pm.getByText('تعذّر العدّ').count()) throw new Error('فشل عدّ إحدى الإحصاءات')
       await shot(pm, 'TC-05-admin')
     })
     await check('TC-05', 'المدير يبحث عن مستخدم بالبريد', async () => {
       await pm.getByLabel('البحث في المستخدمين').fill(users.B.email)
-      await pm.getByText(users.B.email).waitFor({ timeout: 5000 })
+      await pm.getByText(users.B.email).waitFor({ timeout: 60000 })
       if (await pm.getByText(users.A.email).count()) throw new Error('البحث لم يُصفِّ النتائج')
     })
   } else {

@@ -70,9 +70,11 @@ npm run dev -- --port 5199
 | `npm run test:rules`                               | اختبار قواعد الأمان على Firestore الحقيقي، ثم حذف البيانات التجريبية. ولاختبار صلاحيات المدير مرّر `ADMIN_EMAIL` و`ADMIN_PASSWORD` |
 | `npm run test:e2e`                                 | اختبار المسار الكامل بـ Playwright: تسجيل ← مشروع ← تحليل ← مخططات ← PDF ← تعديل ← مشاركة ← حذف                                   |
 | `node scripts/responsive-check.mjs <dir> [ar\|en]` | فحص التجاوب (390 و768 و1280px) والأزرار بلا اسم                                                                                   |
-| `node scripts/pwa-check.mjs <url>`                 | فحص قابلية التثبيت من المتصفح والعمل دون اتصال (على نسخة الإنتاج: `npx vite preview --port 5200`)                                 |
+| `node scripts/pwa-check.mjs <url>`                 | فحص قابلية التثبيت من المتصفح والعمل دون اتصال (على نسخة الإنتاج: `npm run preview -- --port 5200`)                             |
 
 اختبارا `test:e2e` و`responsive-check` يحتاجان خادم التطوير على المنفذ 5199. وينشئ كل منهما حساباً تجريبياً ثم يحذفه.
+
+تمرّ `dev` و`build` و`preview` و`test` عبر [scripts/run.mjs](scripts/run.mjs)، الذي يوحّد حرف القرص على ويندوز؛ فتشغيل `npx vite` أو `npx vitest` مباشرةً من طرفية VS Code (`c:\...`) قد يحمّل React أو Vitest مرتين.
 
 ## النشر
 

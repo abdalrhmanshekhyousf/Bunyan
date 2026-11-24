@@ -7,6 +7,8 @@ import { join } from 'node:path'
 
 const out = process.argv[2] ?? 'e2e-out'
 const B = process.argv[3] ?? 'http://localhost:5199'
+// الشبكة البطيئة تؤخّر حدث load (الخطوط والموارد الخارجية)، فننتظر جاهزية المستند فقط
+const NAV = { waitUntil: 'domcontentloaded', timeout: 90000 }
 mkdirSync(out, { recursive: true })
 const apiKey = readFileSync('.env.local', 'utf8')
   .match(/VITE_FIREBASE_API_KEY=(.*)/)[1]
@@ -23,15 +25,15 @@ page.on('console', (m) => m.type() === 'error' && console.log('console:', m.text
 const toasts = async () => (await page.locator('[data-sonner-toast]').allInnerTexts()).join(' | ')
 
 try {
-  await page.goto(B + '/register')
+  await page.goto(B + '/register', NAV)
   await page.getByLabel('الاسم').fill('مختبر آلي')
   await page.getByLabel('البريد الإلكتروني').fill(email)
   await page.getByLabel('كلمة المرور', { exact: true }).fill(password)
   await page.getByLabel('تأكيد كلمة المرور').fill(password)
   await page.getByRole('button', { name: 'إنشاء الحساب' }).click()
-  await page.waitForURL('**/dashboard', { timeout: 15000 })
+  await page.waitForURL('**/dashboard', { timeout: 60000 })
   step('التسجيل والانتقال إلى اللوحة: ' + (await toasts()))
-  await page.getByRole('heading', { name: 'لا توجد مشاريع بعد' }).waitFor({ timeout: 10000 })
+  await page.getByRole('heading', { name: 'لا توجد مشاريع بعد' }).waitFor({ timeout: 60000 })
   step('الحالة الفارغة ظاهرة')
   await page.screenshot({ path: join(out, 'e2e-1-empty.png') })
 
@@ -43,7 +45,7 @@ try {
     .first()
     .click()
   await page.getByRole('button', { name: 'إنشاء المشروع' }).click()
-  await page.waitForURL('**/projects/**', { timeout: 15000 })
+  await page.waitForURL('**/projects/**', { timeout: 60000 })
   projectId = page.url().split('/projects/')[1]
   step('أُنشئ المشروع: ' + page.url())
 
@@ -53,7 +55,7 @@ try {
     return t.length === 1 && t[0].value.length > 100
   })
   await ta.fill((await ta.inputValue()) + '\nسطر مضاف للاختبار.')
-  await page.getByText('تم الحفظ').waitFor({ timeout: 10000 })
+  await page.getByText('تم الحفظ').waitFor({ timeout: 60000 })
   await page.reload()
   await page.waitForTimeout(1500)
   const v = await ta.inputValue()
@@ -103,23 +105,23 @@ try {
   await page.getByRole('button', { name: 'إضافة قاعدة' }).click()
   await page.getByLabel('القاعدة').last().fill('قاعدة مضافة في الاختبار')
   await page.getByRole('button', { name: 'حفظ التعديلات' }).click()
-  await page.getByText('الإصدار 2').waitFor({ timeout: 45000 })
+  await page.getByText('الإصدار 2').waitFor({ timeout: 60000 })
   step('التعديل اليدوي حُفظ كإصدار 2')
   await page.getByRole('tab', { name: 'الوصف' }).click()
   await page.getByRole('button', { name: 'مشاركة' }).click()
   await page.getByRole('button', { name: 'تفعيل رابط المشاركة' }).click()
-  await page.getByLabel('رابط المشاركة').waitFor({ timeout: 10000 })
+  await page.getByLabel('رابط المشاركة').waitFor({ timeout: 60000 })
   step('رابط المشاركة: ' + (await page.getByLabel('رابط المشاركة').inputValue()))
   await page.keyboard.press('Escape')
   await page.screenshot({ path: join(out, 'e2e-2-workspace.png') })
 
-  await page.goto(B + '/dashboard')
+  await page.goto(B + '/dashboard', NAV)
   await page.waitForTimeout(1500)
   await page.screenshot({ path: join(out, 'e2e-3-dashboard.png') })
   await page.getByRole('link', { name: /نظام إدارة مكتبة/ }).click()
   await page.getByRole('button', { name: 'حذف المشروع' }).click()
   await page.getByRole('button', { name: 'حذف نهائياً' }).click()
-  await page.waitForURL('**/dashboard', { timeout: 15000 })
+  await page.waitForURL('**/dashboard', { timeout: 60000 })
   projectId = null
   step('حُذف المشروع: ' + (await toasts()))
 } catch (e) {
