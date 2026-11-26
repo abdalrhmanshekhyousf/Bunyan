@@ -1,5 +1,7 @@
 {
-  "language": { "switch": "العربية" },
+  "language": {
+    "switch": "العربية"
+  },
   "loading": "Loading",
   "or": "or",
   "nav": {
@@ -9,12 +11,25 @@
     "projects": "My projects",
     "admin": "Admin dashboard"
   },
-  "theme": { "light": "Light mode", "dark": "Dark mode" },
-  "user": { "logout": "Log out", "loggedOut": "You have been logged out." },
-  "actions": { "close": "Close" },
+  "theme": {
+    "light": "Light mode",
+    "dark": "Dark mode"
+  },
+  "user": {
+    "logout": "Log out",
+    "loggedOut": "You have been logged out."
+  },
+  "actions": {
+    "close": "Close"
+  },
   "install": {
     "label": "Install app",
     "hint": "Install Bunyan on your device to open it in its own window like any app",
     "done": "Bunyan was installed on your device."
+  },
+  "routeError": {
+    "title": "This page could not be opened",
+    "body": "A new version of Bunyan may have been released, or the connection dropped. Reload the page to continue.",
+    "reload": "Reload"
   }
 }

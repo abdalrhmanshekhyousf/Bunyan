@@ -7,18 +7,34 @@ import {
   ProtectedRoute,
 } from '@/components/layout/ProtectedRoute.jsx'
 import Landing from '@/pages/Landing.jsx'
+import RouteError from '@/pages/RouteError.jsx'
 
 // التحميل الكسول (T10.6): الصفحة الرئيسية وحدها في الحزمة الأولى، وكل صفحة أخرى
 // تُنزَّل عند فتحها أول مرة. الموجّه ينتظر تحميلها قبل الانتقال فتبقى الصفحة السابقة ظاهرة
+//
+// بعد كل نشر تتغير أسماء ملفات الصفحات، فالتبويب المفتوح من نسخة سابقة يطلب ملفاً لم يعد موجوداً.
+// حينها نعيد تحميل الصفحة مرة واحدة لتأتي النسخة الجديدة، والعلامة في sessionStorage تمنع التكرار
+const RELOADED = 'bunyan:chunk-reload'
 const page = (load, props) => async () => {
-  const { default: Page } = await load()
-  return { element: <Page {...props} /> }
+  try {
+    const { default: Page } = await load()
+    sessionStorage.removeItem(RELOADED)
+    return { element: <Page {...props} /> }
+  } catch (e) {
+    if (!sessionStorage.getItem(RELOADED)) {
+      sessionStorage.setItem(RELOADED, '1')
+      window.location.reload()
+      return new Promise(() => {}) // تبقى الصفحة الحالية ظاهرة ريثما يعاد التحميل
+    }
+    throw e
+  }
 }
 
 export const router = createBrowserRouter([
   {
     // يظهر عند فتح رابط صفحة كسولة مباشرة، ريثما تُحمَّل
     hydrateFallbackElement: <FullPageSpinner />,
+    errorElement: <RouteError />,
     children: [
       { path: '/', element: <Landing /> },
       {
