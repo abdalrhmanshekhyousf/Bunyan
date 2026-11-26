@@ -79,6 +79,7 @@ try {
     call(A, 'PATCH', `/users/${A.uid}`, { role: s('admin') }),
   )
   await expect('أ يكتب مستند ب', 'deny', call(A, 'PATCH', `/users/${B.uid}`, { role: s('user') }))
+  await expect('ب ينشئ مستنده بدور user', 'allow', call(B, 'PATCH', `/users/${B.uid}`, { role: s('user') }))
   await expect('ب يقرأ مستند أ', 'deny', call(B, 'GET', `/users/${A.uid}`))
   await expect(
     'أ ينشئ مشروعاً باسمه',
@@ -99,6 +100,11 @@ try {
     }),
   )
   await expect('ب يقرأ مشروع أ الخاص', 'deny', call(B, 'GET', `/projects/${pid}`))
+  await expect(
+    'أ يحفظ مخططاً في مشروعه',
+    'allow',
+    call(A, 'PATCH', `/projects/${pid}/diagrams/x`, { code: s('graph TD') }),
+  )
   await expect(
     'أ يشارك مشروعه',
     'allow',
@@ -258,9 +264,14 @@ try {
     console.log('… تُركت اختبارات المدير: لم يُمرَّر ADMIN_EMAIL')
   }
 } finally {
+  // المخطط التجريبي أولاً (مجموعة فرعية لا تُحذف بحذف المشروع)، ثم المشروع
+  await call(A, 'DELETE', `/projects/${pid}/diagrams/x`)
+  if (M) await call(M, 'DELETE', `/projects/${pid}/diagrams/x`)
   await call(A, 'DELETE', `/projects/${pid}`)
+  // إن نجح «المحظور ينشئ مشروعاً» خطأً، لا يبقى مشروعه
+  await call(B, 'DELETE', `/projects/banned-${B.uid}`)
   // عدّاد الاستخدام ومستند المستخدم لا يحذفهما إلا المدير
-  if (M) await call(M, 'DELETE', `/usage/${A.uid}`)
+  if (M) for (const u of [A, B]) await call(M, 'DELETE', `/usage/${u.uid}`)
   for (const u of [A, B]) {
     // حذف مستند المستخدم للمدير وحده؛ دون حساب مدير يبقى مستند يتيم
     if (M) await call(M, 'DELETE', `/users/${u.uid}`)
