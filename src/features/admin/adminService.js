@@ -5,13 +5,16 @@ import {
   deleteDoc,
   doc,
   getCountFromServer,
+  getDocs,
   onSnapshot,
   query,
   serverTimestamp,
   updateDoc,
   where,
+  writeBatch,
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase.js'
+import { SUBCOLLECTIONS } from '@/features/projects/projectsService.js'
 
 // خدمات لوحة المدير (المرحلة 8)
 
@@ -57,6 +60,36 @@ export function watchUsers(onData, onError) {
 
 // القواعد تمنع المدير من تغيير دوره هو
 export const setUserRole = (uid, role) => updateDoc(doc(db, 'users', uid), { role })
+
+// الحظر: تمنع القواعد المحظور من كل كتابة ومن قراءة المشاريع، ويُسجَّل خروجه من التطبيق
+export const setUserBanned = (uid, banned) =>
+  updateDoc(doc(db, 'users', uid), { banned, bannedAt: banned ? serverTimestamp() : null })
+
+// الحذف: يُحظر المستخدم أولاً (فالقواعد لا تسمح للمدير بحذف بيانات مستخدم نشط)،
+// ثم تُحذف مشاريعه بمجموعاتها الفرعية وعدّاد استخدامه، ويبقى مستنده موسوماً «محذوف» بلا اسم
+// كي لا يعود بالحساب نفسه. حساب الدخول في Firebase Authentication يحتاج خادماً لحذفه
+export async function deleteUserData(uid, { banned }) {
+  if (!banned) await setUserBanned(uid, true)
+  const projects = await getDocs(query(collection(db, 'projects'), where('ownerId', '==', uid)))
+  // دفعة لكل مشروع، كي لا تتجاوز حدّ عمليات الدفعة الواحدة
+  for (const p of projects.docs) {
+    const batch = writeBatch(db)
+    for (const sub of SUBCOLLECTIONS) {
+      const snap = await getDocs(collection(db, 'projects', p.id, sub))
+      snap.forEach((d) => batch.delete(d.ref))
+    }
+    batch.delete(p.ref)
+    await batch.commit()
+  }
+  await deleteDoc(doc(db, 'usage', uid))
+  await updateDoc(doc(db, 'users', uid), {
+    deleted: true,
+    deletedAt: serverTimestamp(),
+    displayName: '',
+    photoURL: null,
+  })
+  return projects.size
+}
 
 // القوالب (T8.4)
 const templatesCol = collection(db, 'templates')

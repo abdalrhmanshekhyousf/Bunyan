@@ -9,7 +9,10 @@
     "templates": "Templates",
     "unavailable": "Could not count"
   },
-  "tabs": { "users": "Users", "templates": "Templates" },
+  "tabs": {
+    "users": "Users",
+    "templates": "Templates"
+  },
   "users": {
     "search": "Search users",
     "searchPlaceholder": "Search by name or email…",
@@ -30,7 +33,23 @@
     "loadFailed": "Could not load users.",
     "roleChanged": "{{name}}'s role was changed.",
     "roleFailed": "Could not change the role.",
-    "confirmAdmin": "Make {{name}} an admin? They will be able to manage users and templates."
+    "confirmAdmin": "Make {{name}} an admin? They will be able to manage users and templates.",
+    "ban": "Ban",
+    "unban": "Unban",
+    "delete": "Delete",
+    "statusBanned": "Banned",
+    "statusDeleted": "Deleted",
+    "deletedName": "Deleted account",
+    "confirmBan": "Ban {{name}}? They will be signed out at once and cannot sign in, edit their projects or run any analysis until unbanned.",
+    "banned": "{{name}} was banned.",
+    "unbanned": "{{name}} was unbanned.",
+    "actionFailed": "The action failed.",
+    "deleteTitle": "Delete user",
+    "deleteBody": "All of {{name}}’s projects, analyses, diagrams and reports will be permanently deleted, their name erased, and their account locked for good. This cannot be undone.",
+    "deleteConfirm": "Delete permanently",
+    "cancel": "Cancel",
+    "deletedDone": "{{name}} was deleted along with {{count}} project(s).",
+    "deleteFailed": "The user could not be deleted."
   },
   "templates": {
     "intro": "Templates are ready-made examples shown to users in the “New project” dialog once published.",

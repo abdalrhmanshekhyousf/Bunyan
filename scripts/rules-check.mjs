@@ -133,6 +133,16 @@ try {
     call(A, 'PATCH', `/usage/${A.uid}`, usage(today + 1, 1)),
   )
   await expect('ب يكتب عدّاد أ', 'deny', call(B, 'PATCH', `/usage/${A.uid}`, usage(today, 3)))
+  await expect(
+    'أ يحظر نفسه أو يغيّر حقل الحظر',
+    'deny',
+    call(A, 'PATCH', `/users/${A.uid}?updateMask.fieldPaths=banned`, { banned: b(true) }),
+  )
+  await expect(
+    'ب يحظر أ',
+    'deny',
+    call(B, 'PATCH', `/users/${A.uid}?updateMask.fieldPaths=banned`, { banned: b(true) }),
+  )
 
   // المرحلة 8: غير المدير
   const tpl = (published) => ({
@@ -193,6 +203,57 @@ try {
     await expect('ب يقرأ القالب المنشور', 'allow', call(B, 'GET', `/templates/${tid}`))
     await expect('ب يحذف القالب', 'deny', call(B, 'DELETE', `/templates/${tid}`))
     await expect('المدير يحذف القالب', 'allow', call(M, 'DELETE', `/templates/${tid}`))
+
+    // الحظر والحذف
+    const ban = (u, v) =>
+      call(M, 'PATCH', `/users/${u.uid}?updateMask.fieldPaths=banned`, { banned: b(v) })
+    await expect('المدير يحذف مشروع مستخدم نشط', 'deny', call(M, 'DELETE', `/projects/${pid}`))
+    await expect('المدير يحظر ب', 'allow', ban(B, true))
+    await expect(
+      'ب المحظور يرفع حظره بنفسه',
+      'deny',
+      call(B, 'PATCH', `/users/${B.uid}?updateMask.fieldPaths=banned`, { banned: b(false) }),
+    )
+    await expect(
+      'ب المحظور ينشئ مشروعاً',
+      'deny',
+      call(B, 'PATCH', `/projects/banned-${B.uid}`, { ownerId: s(B.uid), title: s('x') }),
+    )
+    await expect(
+      'ب المحظور يبدأ عدّاد التحليل',
+      'deny',
+      call(B, 'PATCH', `/usage/${B.uid}`, usage(today, 1)),
+    )
+    await expect(
+      'المدير يرقّي محظوراً',
+      'deny',
+      call(M, 'PATCH', `/users/${B.uid}?updateMask.fieldPaths=role`, { role: s('admin') }),
+    )
+    await expect('المدير يرفع الحظر عن ب', 'allow', ban(B, false))
+    await expect('المدير يحظر أ', 'allow', ban(A, true))
+    await expect(
+      'المدير يقرأ مخططات مشروع المحظور ليحذفها',
+      'allow',
+      call(M, 'GET', `/projects/${pid}/diagrams/x`),
+    )
+    await expect('المدير يحذف مشروع المحظور', 'allow', call(M, 'DELETE', `/projects/${pid}`))
+    await expect(
+      'المدير يسم أ محذوفاً ويُبقي اسمه',
+      'deny',
+      call(M, 'PATCH', `/users/${A.uid}?updateMask.fieldPaths=deleted&updateMask.fieldPaths=displayName`, {
+        deleted: b(true),
+        displayName: s('باقٍ'),
+      }),
+    )
+    await expect(
+      'المدير يسم أ محذوفاً ويمحو اسمه',
+      'allow',
+      call(M, 'PATCH', `/users/${A.uid}?updateMask.fieldPaths=deleted&updateMask.fieldPaths=displayName`, {
+        deleted: b(true),
+        displayName: s(''),
+      }),
+    )
+    await expect('المدير يرفع الحظر عن محذوف', 'deny', ban(A, false))
   } else {
     console.log('… تُركت اختبارات المدير: لم يُمرَّر ADMIN_EMAIL')
   }

@@ -1,29 +1,51 @@
 rules_version = '2';
 
-// قواعد أمان بُنيان (T2.10 + T3.11 + T8.5)
+// قواعد أمان Data Analytics (T2.10 + T3.11 + T8.5 + حظر المستخدمين وحذفهم)
 service cloud.firestore {
   match /databases/{database}/documents {
 
     function signedIn() { return request.auth != null; }
-    function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
+    function userDoc(uid) { return /databases/$(database)/documents/users/$(uid); }
+    // المحظور (ومنه المحذوف) لا يكتب شيئاً ولا يقرأ المشاريع، وإن بقي حسابه في Authentication
+    function isBanned(uid) {
+      return exists(userDoc(uid)) && get(userDoc(uid)).data.get('banned', false) == true;
+    }
+    function active() { return signedIn() && !isBanned(request.auth.uid); }
+    function isSelf(uid) { return active() && request.auth.uid == uid; }
     function isAdmin() {
-      return signedIn()
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      return signedIn() && get(userDoc(request.auth.uid)).data.role == 'admin';
     }
     function unchanged(field) {
       return request.resource.data.get(field, null) == resource.data.get(field, null);
     }
 
-    // المستخدمون: كلٌّ يقرأ مستنده، ولا يرقّي نفسه مديراً أبداً
+    // المستخدمون: كلٌّ يقرأ مستنده (ولو محظوراً، ليعرف حاله)، ولا يرقّي نفسه مديراً أبداً
     match /users/{uid} {
-      allow read: if isSelf(uid) || isAdmin();
-      allow create: if isSelf(uid) && request.resource.data.role == 'user';
-      // المدير يغيّر حقل الدور وحده، ولا يغيّر دوره هو فلا تبقى المنصة بلا مدير (T8.5)
-      allow update: if (isSelf(uid) && unchanged('role'))
-        || (isAdmin() && uid != request.auth.uid
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role'])
-            && request.resource.data.role in ['user', 'admin']);
+      allow read: if (signedIn() && request.auth.uid == uid) || isAdmin();
+      allow create: if isSelf(uid) && request.resource.data.role == 'user'
+        && request.resource.data.get('banned', false) == false
+        && request.resource.data.get('deleted', false) == false;
+      allow update: if (isSelf(uid) && unchanged('role') && unchanged('banned') && unchanged('deleted'))
+        // المدير لا يغيّر مستنده هو، فلا تبقى المنصة بلا مدير (T8.5)
+        || (isAdmin() && uid != request.auth.uid && adminUserUpdate());
       allow delete: if isAdmin();
+
+      // ما يجوز للمدير في مستند غيره:
+      // - تغيير الدور لمستخدم غير محظور
+      // - حظر مستخدم عادي أو رفع حظره (لا يُحظر مدير؛ يُعاد مستخدماً أولاً)
+      // - وسم المحظور محذوفاً بعد حذف بياناته، مع محو اسمه وصورته. والمحذوف لا يعود
+      function adminUserUpdate() {
+        let d = request.resource.data;
+        let keys = d.diff(resource.data).affectedKeys();
+        return resource.data.get('deleted', false) == false && (
+          (keys.hasOnly(['role']) && d.role in ['user', 'admin']
+            && resource.data.get('banned', false) == false)
+          || (keys.hasOnly(['banned', 'bannedAt']) && d.banned is bool && resource.data.role == 'user')
+          || (keys.hasOnly(['deleted', 'deletedAt', 'displayName', 'photoURL'])
+            && d.deleted == true && resource.data.get('banned', false) == true
+            && d.get('displayName', '') == '' && d.get('photoURL', null) == null)
+        );
+      }
     }
 
     // المشاريع: المالك يكتب، والمشترَك يقرؤه أي مستخدم مسجّل.
@@ -31,11 +53,13 @@ service cloud.firestore {
     match /projects/{projectId} {
       function project() { return get(/databases/$(database)/documents/projects/$(projectId)).data; }
       function canRead(data) {
-        return isSelf(data.ownerId) || (signedIn() && data.get('isShared', false) == true);
+        return isSelf(data.ownerId) || (active() && data.get('isShared', false) == true);
       }
+      // المدير يحذف بيانات المستخدم المحظور وحده؛ مشاريع النشطين محمية حتى من المدير
+      function adminPurge(data) { return isAdmin() && isBanned(data.ownerId); }
 
       allow read: if canRead(resource.data) || isAdmin();
-      allow create: if signedIn()
+      allow create: if active()
         && request.resource.data.ownerId == request.auth.uid
         && request.resource.data.title is string
         && request.resource.data.title.size() <= 120
@@ -43,12 +67,13 @@ service cloud.firestore {
       allow update: if isSelf(resource.data.ownerId)
         && unchanged('ownerId')
         && request.resource.data.get('description', '').size() <= 5000;
-      allow delete: if isSelf(resource.data.ownerId);
+      allow delete: if isSelf(resource.data.ownerId) || adminPurge(resource.data);
 
       // المجموعات الفرعية: analyses وdiagrams وdatabaseDesigns وreports
       match /{sub}/{docId} {
-        allow read: if canRead(project());
+        allow read: if canRead(project()) || adminPurge(project());
         allow write: if isSelf(project().ownerId);
+        allow delete: if adminPurge(project());
       }
     }
 
@@ -66,7 +91,7 @@ service cloud.firestore {
           && d.language in ['ar', 'en']
           && d.published is bool;
       }
-      allow read: if (signedIn() && resource.data.published == true) || isAdmin();
+      allow read: if (active() && resource.data.published == true) || isAdmin();
       allow create, update: if isAdmin() && validTemplate(request.resource.data);
       allow delete: if isAdmin();
     }

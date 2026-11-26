@@ -1,20 +1,21 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Search, ShieldCheck, ShieldOff } from 'lucide-react'
+import { Ban, Search, ShieldCheck, ShieldOff, Trash2, UserCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslation } from 'react-i18next'
-import { Badge, Button, Card, Skeleton } from '@/components/ui/index.js'
+import { Badge, Button, Card, Modal, Skeleton } from '@/components/ui/index.js'
 import { fieldClass } from '@/components/ui/Input.jsx'
 import { useAuth } from '@/hooks/useAuth.js'
 import { formatDate } from '@/features/projects/status.js'
-import { setUserRole, watchUsers } from './adminService.js'
+import { deleteUserData, setUserBanned, setUserRole, watchUsers } from './adminService.js'
 
-// جدول المستخدمين مع البحث وتغيير الدور (T8.2)
+// جدول المستخدمين مع البحث وتغيير الدور (T8.2)، وحظر المستخدم وحذفه
 export default function UsersTable() {
   const { t } = useTranslation('admin')
   const { user: me } = useAuth()
   const [state, setState] = useState({ users: [], loading: true, error: null })
   const [search, setSearch] = useState('')
   const [busy, setBusy] = useState(null)
+  const [toDelete, setToDelete] = useState(null)
 
   useEffect(
     () =>
@@ -51,6 +52,38 @@ export default function UsersTable() {
     }
   }
 
+  async function toggleBan(u) {
+    const name = u.displayName || u.email
+    const banned = !u.banned
+    if (banned && !confirm(t('users.confirmBan', { name }))) return
+    setBusy(u.id)
+    try {
+      await setUserBanned(u.id, banned)
+      toast.success(t(banned ? 'users.banned' : 'users.unbanned', { name }))
+    } catch (e) {
+      console.error('setUserBanned:', e.code, e.message)
+      toast.error(t('users.actionFailed'))
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function onDelete() {
+    const u = toDelete
+    const name = u.displayName || u.email
+    setToDelete(null)
+    setBusy(u.id)
+    try {
+      const count = await deleteUserData(u.id, { banned: !!u.banned })
+      toast.success(t('users.deletedDone', { name, count }))
+    } catch (e) {
+      console.error('deleteUserData:', e.code, e.message)
+      toast.error(t('users.deleteFailed'))
+    } finally {
+      setBusy(null)
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -82,7 +115,7 @@ export default function UsersTable() {
         <p className="py-8 text-center text-slate-500">{t('users.noMatches')}</p>
       ) : (
         <Card className="overflow-x-auto p-0">
-          <table className="w-full min-w-[40rem] text-sm">
+          <table className="w-full min-w-[52rem] text-sm">
             <thead className="bg-slate-50 text-start text-slate-600 dark:bg-slate-800/60 dark:text-slate-400">
               <tr>
                 <th className="px-4 py-3 text-start font-semibold">{t('users.name')}</th>
@@ -97,10 +130,12 @@ export default function UsersTable() {
                 const isMe = u.id === me?.uid
                 const isAdmin = u.role === 'admin'
                 return (
-                  <tr key={u.id}>
+                  <tr key={u.id} className={u.deleted ? 'opacity-60' : undefined}>
                     <td className="px-4 py-3 font-semibold">
                       {u.displayName || (
-                        <span className="font-normal text-slate-400">{t('users.noName')}</span>
+                        <span className="font-normal text-slate-400">
+                          {t(u.deleted ? 'users.deletedName' : 'users.noName')}
+                        </span>
                       )}
                       {isMe && (
                         <Badge tone="navy" className="ms-2">
@@ -112,28 +147,66 @@ export default function UsersTable() {
                       <span className="block text-start">{u.email}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <Badge tone={isAdmin ? 'teal' : 'slate'}>
-                        {t(isAdmin ? 'users.roleAdmin' : 'users.roleUser')}
-                      </Badge>
+                      {u.deleted ? (
+                        <Badge tone="red">{t('users.statusDeleted')}</Badge>
+                      ) : u.banned ? (
+                        <Badge tone="amber">{t('users.statusBanned')}</Badge>
+                      ) : (
+                        <Badge tone={isAdmin ? 'teal' : 'slate'}>
+                          {t(isAdmin ? 'users.roleAdmin' : 'users.roleUser')}
+                        </Badge>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-slate-600 dark:text-slate-400">
                       {formatDate(u.createdAt)}
                     </td>
-                    <td className="px-4 py-3 text-end">
-                      {!isMe && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          loading={busy === u.id}
-                          onClick={() => toggleRole(u)}
-                        >
-                          {isAdmin ? (
-                            <ShieldOff className="size-4" />
-                          ) : (
-                            <ShieldCheck className="size-4" />
+                    <td className="px-4 py-3">
+                      {!isMe && !u.deleted && (
+                        <div className="flex flex-wrap justify-end gap-1">
+                          {!u.banned && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              loading={busy === u.id}
+                              onClick={() => toggleRole(u)}
+                            >
+                              {isAdmin ? (
+                                <ShieldOff className="size-4" />
+                              ) : (
+                                <ShieldCheck className="size-4" />
+                              )}
+                              {t(isAdmin ? 'users.makeUser' : 'users.makeAdmin')}
+                            </Button>
                           )}
-                          {t(isAdmin ? 'users.makeUser' : 'users.makeAdmin')}
-                        </Button>
+                          {/* المدير لا يُحظر ولا يُحذف؛ يُعاد مستخدماً أولاً */}
+                          {!isAdmin && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                disabled={busy === u.id}
+                                onClick={() => toggleBan(u)}
+                              >
+                                {u.banned ? (
+                                  <UserCheck className="size-4" />
+                                ) : (
+                                  <Ban className="size-4" />
+                                )}
+                                {t(u.banned ? 'users.unban' : 'users.ban')}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                disabled={busy === u.id}
+                                onClick={() => setToDelete(u)}
+                                className="text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
+                              >
+                                <Trash2 className="size-4" />
+                                {t('users.delete')}
+                              </Button>
+                            </>
+                          )}
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -143,6 +216,27 @@ export default function UsersTable() {
           </table>
         </Card>
       )}
+
+      <Modal
+        open={!!toDelete}
+        onClose={() => setToDelete(null)}
+        title={t('users.deleteTitle')}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setToDelete(null)}>
+              {t('users.cancel')}
+            </Button>
+            <Button variant="danger" onClick={onDelete}>
+              <Trash2 className="size-4" />
+              {t('users.deleteConfirm')}
+            </Button>
+          </>
+        }
+      >
+        <p className="leading-relaxed">
+          {t('users.deleteBody', { name: toDelete?.displayName || toDelete?.email })}
+        </p>
+      </Modal>
     </div>
   )
 }

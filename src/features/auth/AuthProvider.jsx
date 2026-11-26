@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { onAuthStateChanged } from 'firebase/auth'
+import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { doc, onSnapshot } from 'firebase/firestore'
+import { toast } from 'sonner'
+import i18n from '@/lib/i18n.js'
 import { auth, db } from '@/lib/firebase.js'
 import { ensureUserDoc } from './authService.js'
 import { AuthContext } from './authContext.js'
@@ -26,7 +28,17 @@ export default function AuthProvider({ children }) {
       unsubProfile = onSnapshot(
         doc(db, 'users', u.uid),
         (snap) => {
-          setProfile(snap.exists() ? snap.data() : null)
+          const data = snap.exists() ? snap.data() : null
+          // المحظور أو المحذوف يُسجَّل خروجه فوراً، ولو حُظر وهو داخل التطبيق
+          if (data?.banned) {
+            toast.error(i18n.t(data.deleted ? 'auth:account.deleted' : 'auth:account.banned'), {
+              id: 'account-blocked',
+              duration: 10000,
+            })
+            signOut(auth)
+            return
+          }
+          setProfile(data)
           setLoading(false)
         },
         () => setLoading(false),
