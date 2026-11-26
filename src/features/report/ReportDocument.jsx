@@ -42,9 +42,7 @@ export default function ReportDocument({
       {/* الغلاف */}
       <section className="report-cover">
         <LogoMark className="size-24" />
-        <p className="mt-3 text-sm font-semibold tracking-widest text-slate-500">
-          {lang === 'ar' ? 'بُنيان' : 'BUNYAN'}
-        </p>
+        <p className="mt-3 text-sm font-semibold tracking-widest text-slate-500">Data Analytics</p>
         <h1 className="mt-16 text-4xl leading-tight font-bold text-navy">{project.title}</h1>
         <p className="mt-4 text-xl text-slate-600">{t('subtitle')}</p>
         <dl className="mt-24 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-start text-slate-700">
@@ -334,6 +332,22 @@ export default function ReportDocument({
               </ol>
             </>
           )}
+        </section>
+      )}
+
+      {include('references') && (
+        <section>
+          {heading('references')}
+          <ol className="report-list list-decimal">
+            {t('referencesList', { returnObjects: true }).map((r) => (
+              <li key={r.url}>
+                <span className="font-semibold">{r.title}</span> — {r.desc}{' '}
+                <span dir="ltr" className="text-slate-500">
+                  {r.url}
+                </span>
+              </li>
+            ))}
+          </ol>
         </section>
       )}
     </article>

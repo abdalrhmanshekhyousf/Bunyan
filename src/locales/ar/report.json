@@ -26,7 +26,10 @@
   "sqlCode": "شيفرة إنشاء الجداول ({{dialect}})",
   "recommendations": "التوصيات",
   "noConclusions": "لم تُكتب الاستنتاجات بعد.",
-  "requirements": { "functional": "المتطلبات الوظيفية", "nonFunctional": "المتطلبات غير الوظيفية" },
+  "requirements": {
+    "functional": "المتطلبات الوظيفية",
+    "nonFunctional": "المتطلبات غير الوظيفية"
+  },
   "sections": {
     "intro": "المقدمة",
     "requirements": "المتطلبات",
@@ -36,7 +39,8 @@
     "rules": "قواعد العمل",
     "diagrams": "مخططات UML",
     "database": "تصميم قاعدة البيانات",
-    "conclusions": "الاستنتاجات والتوصيات"
+    "conclusions": "الاستنتاجات والتوصيات",
+    "references": "المراجع والأدوات"
   },
   "ui": {
     "needAnalysis": "حلّل الوصف أولاً ليُبنى التقرير.",
@@ -60,5 +64,27 @@
     "generated": "كُتبت الاستنتاجات والتوصيات. راجعها ثم احفظ.",
     "generateFailed": "تعذّرت كتابة الاستنتاجات. أعد المحاولة.",
     "rendering": "جارٍ رسم المخططات للتقرير…"
-  }
+  },
+  "referencesList": [
+    {
+      "title": "draw.io (diagrams.net)",
+      "desc": "أداة رسم المخططات التي اتُّخذت مرجعاً لتصميم واجهة محرّر المخططات: مكتبة الأشكال الجانبية، ولوحة الرسم الشبكية، ولوحة الخصائص.",
+      "url": "https://www.drawio.com"
+    },
+    {
+      "title": "OMG Unified Modeling Language (UML) 2.5.1",
+      "desc": "المواصفة القياسية لرموز مخططات UML وقواعدها.",
+      "url": "https://www.omg.org/spec/UML/2.5.1"
+    },
+    {
+      "title": "Mermaid",
+      "desc": "مكتبة رسم المخططات من النص، وبها تُرسم مخططات هذا التقرير.",
+      "url": "https://mermaid.js.org"
+    },
+    {
+      "title": "Google Gemini — Firebase AI Logic",
+      "desc": "نموذج الذكاء الاصطناعي الذي حلّل وصف النظام واستخرج منه المتطلبات والكيانات والعلاقات.",
+      "url": "https://firebase.google.com/docs/ai-logic"
+    }
+  ]
 }

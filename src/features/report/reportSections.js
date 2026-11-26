@@ -9,4 +9,5 @@ export const REPORT_SECTIONS = [
   'diagrams',
   'database',
   'conclusions',
+  'references',
 ]

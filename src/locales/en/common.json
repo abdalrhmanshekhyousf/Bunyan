@@ -24,12 +24,12 @@
   },
   "install": {
     "label": "Install app",
-    "hint": "Install Bunyan on your device to open it in its own window like any app",
-    "done": "Bunyan was installed on your device."
+    "hint": "Install Data Analytics on your device to open it in its own window like any app",
+    "done": "Data Analytics was installed on your device."
   },
   "routeError": {
     "title": "This page could not be opened",
-    "body": "A new version of Bunyan may have been released, or the connection dropped. Reload the page to continue.",
+    "body": "A new version of Data Analytics may have been released, or the connection dropped. Reload the page to continue.",
     "reload": "Reload"
   }
 }

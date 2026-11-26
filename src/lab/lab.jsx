@@ -101,7 +101,7 @@ function Lab() {
   return (
     <div className="mx-auto max-w-6xl space-y-10 p-6 font-['Readex_Pro'] text-ink">
       <header className="no-print space-y-2">
-        <h1 className="text-3xl font-semibold text-navy">مختبر بُنيان — تجارب العربي</h1>
+        <h1 className="text-3xl font-semibold text-navy">مختبر Data Analytics — تجارب العربي</h1>
         <p className="text-slate-600">
           T0.8: كل مخطط بطريقتين. A = معرّفات عربية، B = معرّفات إنجليزية مع تسميات عربية.
         </p>

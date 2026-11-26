@@ -10,7 +10,8 @@ const MAX = 4
 
 // يرسم شيفرة Mermaid (T5.3) مع تكبير وتصغير وسحب (T5.5).
 // svgRef يُعطى للأب لاستعماله في التنزيل.
-export default function MermaidView({ code, svgRef, label }) {
+// canvas: يملأ مساحة الأب بخلفية شبكية كلوحة رسم (محرّر المخططات بأسلوب draw.io)
+export default function MermaidView({ code, svgRef, label, canvas = false }) {
   const { t } = useTranslation('diagrams')
   const dark = useIsDark()
   const hostRef = useRef(null)
@@ -71,11 +72,11 @@ export default function MermaidView({ code, svgRef, label }) {
   const endDrag = () => (drag.current = null)
 
   return (
-    <div className="relative">
+    <div className={canvas ? 'canvas-grid relative h-full' : 'relative'}>
       {state.status === 'error' && (
         <div
           role="alert"
-          className="flex flex-col gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-900 dark:bg-red-500/10 dark:text-red-300"
+          className={`flex flex-col gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-900 dark:bg-red-500/10 dark:text-red-300 ${canvas ? 'm-4' : ''}`}
         >
           <p className="flex items-center gap-2 font-semibold">
             <AlertTriangle className="size-5" />
@@ -86,13 +87,17 @@ export default function MermaidView({ code, svgRef, label }) {
           </pre>
         </div>
       )}
-      {state.status === 'loading' && <Skeleton className="h-80 rounded-xl" />}
+      {state.status === 'loading' && (
+        <Skeleton className={canvas ? 'absolute inset-6 rounded-xl' : 'h-80 rounded-xl'} />
+      )}
 
       <div
         className={
-          state.status === 'ready'
-            ? 'relative h-[min(70vh,640px)] cursor-grab touch-none overflow-hidden rounded-xl border border-slate-200 bg-white active:cursor-grabbing dark:border-slate-800 dark:bg-ink'
-            : 'hidden'
+          state.status !== 'ready'
+            ? 'hidden'
+            : canvas
+              ? 'relative h-full min-h-[22rem] cursor-grab touch-none overflow-hidden active:cursor-grabbing'
+              : 'relative h-[min(70vh,640px)] cursor-grab touch-none overflow-hidden rounded-xl border border-slate-200 bg-white active:cursor-grabbing dark:border-slate-800 dark:bg-ink'
         }
         onWheel={onWheel}
         onPointerDown={onPointerDown}

@@ -3,7 +3,7 @@
 /* الوضع الداكن يُفعَّل بصنف .dark على <html> (يُحفظ الاختيار في localStorage) */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ألوان هوية بُنيان */
+/* ألوان هوية Data Analytics */
 @theme {
   --color-navy: #1e2a78;
   --color-navy-600: #2a3896;
@@ -27,6 +27,21 @@
 /* كل سطر داخل المخطط يأخذ اتجاهه من أول حرف فيه (عربي RTL، إنجليزي LTR) */
 .mermaid-host :is(span, p, div, text, tspan) {
   unicode-bidi: plaintext;
+}
+
+/* لوحة الرسم في محرّر المخططات: شبكة كأوراق الرسم الهندسي (مستوحاة من draw.io) */
+.canvas-grid {
+  background-color: #fff;
+  background-image:
+    linear-gradient(to right, rgb(148 163 184 / 0.18) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(148 163 184 / 0.18) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.dark .canvas-grid {
+  background-color: var(--color-ink);
+  background-image:
+    linear-gradient(to right, rgb(148 163 184 / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(148 163 184 / 0.08) 1px, transparent 1px);
 }
 
 /* Mermaid يقيس النص العربي أضيق بـ 2–4px من عرضه الفعلي، فلا نقص الزيادة */

@@ -14,7 +14,7 @@
   },
   "empty": {
     "title": "This project hasn't been analyzed yet",
-    "text": "Bunyan reads the description and extracts the requirements, actors, entities, relationships and business rules."
+    "text": "Data Analytics reads the description and extracts the requirements, actors, entities, relationships and business rules."
   },
   "edit": {
     "start": "Edit",
@@ -45,7 +45,7 @@
     "remaining": "Remaining today: {{remaining}} of {{limit}} analyses"
   },
   "progress": {
-    "title": "Bunyan is analyzing your description…",
+    "title": "Data Analytics is analyzing your description…",
     "wait": "This may take about half a minute.",
     "retrying": "The first result wasn't valid; retrying.",
     "thinking": "Reading the description and extracting requirements and entities",

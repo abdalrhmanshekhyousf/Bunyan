@@ -39,7 +39,8 @@
     "rules": "Business rules",
     "diagrams": "UML diagrams",
     "database": "Database design",
-    "conclusions": "Conclusions and recommendations"
+    "conclusions": "Conclusions and recommendations",
+    "references": "References and tools"
   },
   "ui": {
     "needAnalysis": "Analyze the description first to build the report.",
@@ -63,5 +64,27 @@
     "generated": "Conclusions and recommendations written. Review them, then save.",
     "generateFailed": "Couldn't write the conclusions. Please try again.",
     "rendering": "Rendering the diagrams for the report…"
-  }
+  },
+  "referencesList": [
+    {
+      "title": "draw.io (diagrams.net)",
+      "desc": "The diagramming tool used as the reference for the diagram editor’s interface: the side shape library, the grid canvas and the format panel.",
+      "url": "https://www.drawio.com"
+    },
+    {
+      "title": "OMG Unified Modeling Language (UML) 2.5.1",
+      "desc": "The standard specification of UML notation and rules.",
+      "url": "https://www.omg.org/spec/UML/2.5.1"
+    },
+    {
+      "title": "Mermaid",
+      "desc": "The text-to-diagram library used to draw the diagrams in this report.",
+      "url": "https://mermaid.js.org"
+    },
+    {
+      "title": "Google Gemini — Firebase AI Logic",
+      "desc": "The AI model that analyzed the system description and extracted its requirements, entities and relationships.",
+      "url": "https://firebase.google.com/docs/ai-logic"
+    }
+  ]
 }

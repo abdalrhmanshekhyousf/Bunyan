@@ -3,7 +3,7 @@
   "hero": {
     "titleStart": "From an idea to a",
     "titleHighlight": "complete system",
-    "subtitle": "Describe your system in your own words, and Bunyan turns it into requirements, UML diagrams, a database and a ready-to-submit report — in minutes, not days.",
+    "subtitle": "Describe your system in your own words, and Data Analytics turns it into requirements, UML diagrams, a database and a ready-to-submit report — in minutes, not days.",
     "cta": "Start your first project",
     "example": "See an example"
   },
@@ -33,7 +33,7 @@
   "example": {
     "badge": "Example",
     "descriptionLabel": "The description the student wrote:",
-    "extracted": "What Bunyan extracted:",
+    "extracted": "What Data Analytics extracted:",
     "then": "Then eleven diagrams, six tables with their keys and a full report are built from it.",
     "groups": {
       "actors": { "label": "Actors", "items": ["Student", "Librarian", "Library manager"] },
@@ -70,7 +70,7 @@
     "text": "Create a free account and run your first analysis now.",
     "button": "Get started free"
   },
-  "footer": "Bunyan © {{year}}",
+  "footer": "Data Analytics © {{year}}",
   "notFound": {
     "title": "Page not found",
     "text": "This page may have been deleted or its link changed.",

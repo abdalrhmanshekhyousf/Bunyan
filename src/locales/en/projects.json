@@ -29,7 +29,7 @@
     "noDescription": "No description yet.",
     "shared": "Shared",
     "emptyTitle": "No projects yet",
-    "emptyText": "Create your first project and describe its idea, or try the library example to see what Bunyan builds."
+    "emptyText": "Create your first project and describe its idea, or try the library example to see what Data Analytics builds."
   },
   "workspace": {
     "cantOpen": "This project can't be opened",
@@ -72,7 +72,7 @@
   },
   "share": {
     "title": "Share project",
-    "text": "Any signed-in Bunyan user with the link can view the project and its results, without editing anything.",
+    "text": "Any signed-in Data Analytics user with the link can view the project and its results, without editing anything.",
     "link": "Share link",
     "copyLink": "Copy link",
     "copy": "Copy",

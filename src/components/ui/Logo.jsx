@@ -1,67 +1,70 @@
-// شعار بُنيان: الفكرة (الصندوق الفيروزي) في الأعلى، والكيانات تُبنى تحتها على أساس واحد.
+// شعار Data Analytics: ثلاثة أعمدة صاعدة (البيانات) يعلوها خط اتجاه بعُقد فيروزية (التحليل والمخططات).
+// الرسم نفسه في public/favicon.svg وscripts/make-icons.mjs وAnimatedLogoMark
+export const NAME = 'Data Analytics'
 
-export function LogoMark({ className = 'size-10', title = 'بُنيان' }) {
+export function LogoMark({ className = 'size-10', title = NAME }) {
   return (
     <svg viewBox="0 0 64 64" className={className} role="img" aria-label={title}>
-      <rect x="21" y="6" width="22" height="13" rx="3.5" className="fill-teal" />
+      <rect x="6" y="36" width="12" height="18" rx="3" className="fill-navy dark:fill-white" />
+      <rect x="26" y="26" width="12" height="28" rx="3" className="fill-navy dark:fill-white" />
+      <rect x="46" y="16" width="12" height="38" rx="3" className="fill-navy dark:fill-white" />
+      <rect x="4" y="57" width="56" height="3.5" rx="1.75" className="fill-navy dark:fill-white" />
       <path
-        d="M32 19v9M17 34v-6h30v6"
+        d="M12 26 32 16 52 6"
         fill="none"
         strokeWidth="3.5"
+        strokeLinecap="round"
         strokeLinejoin="round"
-        className="stroke-navy dark:stroke-white"
+        className="stroke-teal"
       />
-      <rect x="5" y="33" width="24" height="13" rx="3.5" className="fill-navy dark:fill-white" />
-      <rect x="35" y="33" width="24" height="13" rx="3.5" className="fill-navy dark:fill-white" />
-      <rect x="5" y="51" width="54" height="3.5" rx="1.75" className="fill-navy dark:fill-white" />
+      <circle cx="12" cy="26" r="4.5" className="fill-teal" />
+      <circle cx="32" cy="16" r="4.5" className="fill-teal" />
+      <circle cx="52" cy="6" r="4.5" className="fill-teal" />
     </svg>
   )
 }
 
 // أيقونة التطبيق: نفس الشعار على خلفية كحلية مدوّرة (مطابقة لـ public/favicon.svg)
-export function AppIcon({ className = 'size-12', title = 'بُنيان' }) {
+export function AppIcon({ className = 'size-12', title = NAME }) {
   return (
     <svg viewBox="0 0 64 64" className={className} role="img" aria-label={title}>
       <rect width="64" height="64" rx="15" className="fill-navy" />
       <g transform="translate(12.8 12.8) scale(0.6)">
-        <rect x="21" y="6" width="22" height="13" rx="3.5" fill="#2DD4BF" />
+        <rect x="6" y="36" width="12" height="18" rx="3" fill="#fff" />
+        <rect x="26" y="26" width="12" height="28" rx="3" fill="#fff" />
+        <rect x="46" y="16" width="12" height="38" rx="3" fill="#fff" />
+        <rect x="4" y="57" width="56" height="3.5" rx="1.75" fill="#fff" />
         <path
-          d="M32 19v9M17 34v-6h30v6"
+          d="M12 26 32 16 52 6"
           fill="none"
-          stroke="#fff"
+          stroke="#2DD4BF"
           strokeWidth="3.5"
+          strokeLinecap="round"
           strokeLinejoin="round"
         />
-        <rect x="5" y="33" width="24" height="13" rx="3.5" fill="#fff" />
-        <rect x="35" y="33" width="24" height="13" rx="3.5" fill="#fff" />
-        <rect x="5" y="51" width="54" height="3.5" rx="1.75" fill="#fff" />
+        <circle cx="12" cy="26" r="4.5" fill="#2DD4BF" />
+        <circle cx="32" cy="16" r="4.5" fill="#2DD4BF" />
+        <circle cx="52" cy="6" r="4.5" fill="#2DD4BF" />
       </g>
     </svg>
   )
 }
 
-// الشعار الكامل: الرمز + «بُنيان» + BUNYAN
-export default function Logo({ size = 'md', withLatin = true, className = '' }) {
+// الشعار الكامل: الرمز + «Data» بالكحلي و«Analytics» بالفيروزي، والشعار اللفظي لاتيني في الواجهتين
+export default function Logo({ size = 'md', className = '' }) {
   const s = {
-    sm: { mark: 'size-8', ar: 'text-xl', en: 'text-[0.55rem]' },
-    md: { mark: 'size-11', ar: 'text-3xl', en: 'text-[0.7rem]' },
-    lg: { mark: 'size-20', ar: 'text-6xl', en: 'text-base' },
+    sm: { mark: 'size-8', text: 'text-lg' },
+    md: { mark: 'size-11', text: 'text-2xl' },
+    lg: { mark: 'size-20', text: 'text-5xl' },
   }[size]
 
   return (
-    <div className={`inline-flex items-center gap-3 ${className}`}>
+    <div dir="ltr" className={`inline-flex items-center gap-2.5 ${className}`}>
       <LogoMark className={s.mark} />
-      <div className="flex flex-col items-center leading-none">
-        <span className={`${s.ar} font-bold text-navy dark:text-white`}>بُنيان</span>
-        {withLatin && (
-          <span
-            dir="ltr"
-            className={`${s.en} mt-1 font-semibold tracking-[0.25em] text-slate-500 dark:text-slate-400`}
-          >
-            BUNYAN
-          </span>
-        )}
-      </div>
+      <span className={`${s.text} leading-none font-bold tracking-tight whitespace-nowrap`}>
+        <span className="text-navy dark:text-white">Data</span>{' '}
+        <span className="text-teal">Analytics</span>
+      </span>
     </div>
   )
 }

@@ -98,7 +98,7 @@
     "downloadFailed": "Could not download the image; try SVG instead."
   },
   "design": {
-    "pendingTitle": "Bunyan is designing this diagram now…",
+    "pendingTitle": "Data Analytics is designing this diagram now…",
     "pendingHint": "This takes about a minute and will appear here automatically. You can browse the other diagrams meanwhile.",
     "failed": "Could not design the extra diagrams (state, object, package, component and deployment).",
     "missing": "This analysis predates the extra diagrams (state, object, package, component and deployment).",
@@ -117,5 +117,11 @@
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
     "fit": "Fit"
+  },
+  "editor": {
+    "library": "Diagram library",
+    "format": "Format",
+    "livePreview": "The canvas preview updates once you stop typing.",
+    "ready": "Ready: {{count}} of {{total}}"
   }
 }
