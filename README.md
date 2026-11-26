@@ -42,7 +42,7 @@ npm run dev -- --port 5199
 | المتغيّر                     | الوصف                                                             |
 | --------------------------- | ----------------------------------------------------------------- |
 | `VITE_FIREBASE_*`           | إعدادات تطبيق الويب من Firebase Console ← Project settings        |
-| `VITE_RECAPTCHA_SITE_KEY`   | مفتاح reCAPTCHA v3 الذي سُجّل به التطبيق في App Check               |
+| `VITE_RECAPTCHA_SITE_KEY`   | مفتاح reCAPTCHA Enterprise المسجّل في App Check             |
 | `VITE_APPCHECK_DEBUG_TOKEN` | للتطوير المحلي: رمز debug يُسجَّل في App Check ← Manage debug tokens |
 | `VITE_GEMINI_MODEL`         | اسم النموذج (الافتراضي `gemini-3.6-flash`)                        |
 | `VITE_USE_EMULATORS`        | `true` لتشغيل التطبيق على محاكيات Firebase المحلية                |
@@ -55,7 +55,7 @@ npm run dev -- --port 5199
    npx firebase deploy --only firestore
    ```
 3. فعّل **AI Logic** مع Gemini Developer API.
-4. فعّل **App Check** بمزوّد reCAPTCHA v3، وافرضه على AI Logic (وعلى Firestore في الإنتاج).
+4. فعّل **App Check** بمزوّد reCAPTCHA Enterprise (لا v3: الكود يستعمل ReCaptchaEnterpriseProvider)، وافرضه على AI Logic (وعلى Firestore في الإنتاج).
 5. عيّن أول مدير يدوياً كما في [docs/admin.md](docs/admin.md).
 
 ## الأوامر
