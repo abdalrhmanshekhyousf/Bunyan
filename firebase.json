@@ -12,7 +12,7 @@
     ],
     "rewrites": [
       {
-        "regex": "^/(?!assets/).*",
+        "regex": "^/[^.]*$",
         "destination": "/index.html"
       }
     ],
